@@ -1,0 +1,36 @@
+import 'package:country_picker/country_picker.dart';
+import 'package:flutter/material.dart';
+
+class CountryPickerOptions {
+  final ValueChanged<Country> onSelect;
+  final VoidCallback? onClosed;
+  final List<String>? favorite;
+  final List<String>? exclude;
+  final List<String>? countryFilter;
+  final bool showPhoneCode;
+  final CustomFlagBuilder? customFlagBuilder;
+  final CountryListThemeData? countryListTheme;
+  final bool searchAutofocus;
+  final bool showWorldWide;
+  final bool showSearch;
+  final bool useSafeArea;
+  final bool useRootNavigator;
+  final bool moveAlongWithKeyboard;
+
+  const CountryPickerOptions({
+    required this.onSelect,
+    this.onClosed,
+    this.favorite,
+    this.exclude,
+    this.countryFilter,
+    this.showPhoneCode = true,
+    this.customFlagBuilder,
+    this.countryListTheme,
+    this.searchAutofocus = false,
+    this.showWorldWide = false,
+    this.showSearch = true,
+    this.useSafeArea = false,
+    this.useRootNavigator = false,
+    this.moveAlongWithKeyboard = false,
+  });
+}
