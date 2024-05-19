@@ -34,6 +34,7 @@ class PhoneSignIn extends StatefulWidget {
     this.labelChangeCountry,
     this.hintTextPhoneNumberTextField,
     this.hintTextSmsCodeTextField,
+    this.specialAccounts,
   });
 
   final String? countryCode;
@@ -57,6 +58,8 @@ class PhoneSignIn extends StatefulWidget {
 
   final String? hintTextPhoneNumberTextField;
   final String? hintTextSmsCodeTextField;
+
+  final SpecialAccounts? specialAccounts;
 
   @override
   State<PhoneSignIn> createState() => _PhoneSignInState();
@@ -146,6 +149,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
               const Text('Enter your phone number'),
           TextField(
             controller: phoneNumberController,
+            keyboardType: TextInputType.phone,
             style: Theme.of(context).textTheme.titleLarge,
             decoration: InputDecoration(
               prefixIcon: country != null
@@ -172,6 +176,14 @@ class _PhoneSignInState extends State<PhoneSignIn> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
+                if (widget.specialAccounts?.emailLogin == true &&
+                    phoneNumberController.text.contains('@')) {
+                  return doEmailLogin();
+                } else if (onCompletePhoneNumber() ==
+                    widget.specialAccounts?.reviewPhoneNumber) {
+                  return doReviewPhoneNumberSubmit();
+                }
+
                 showProgress();
                 FirebaseAuth.instance
                     .setLanguageCode(widget.firebaseAuthLanguageCode);
@@ -239,6 +251,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
           widget.labelOnSmsCodeTextField ?? const Text('Enter the SMS code'),
           TextField(
             controller: smsCodeController,
+            keyboardType: TextInputType.number,
             style: Theme.of(context).textTheme.titleLarge,
             decoration: InputDecoration(
               hintText: widget.hintTextSmsCodeTextField ?? 'SMS code',
@@ -259,6 +272,10 @@ class _PhoneSignInState extends State<PhoneSignIn> {
               if (smsCodeController.text.isNotEmpty)
                 ElevatedButton(
                   onPressed: () async {
+                    if (onCompletePhoneNumber() ==
+                        widget.specialAccounts?.reviewPhoneNumber) {
+                      return doReviewSmsCodeSubmit();
+                    }
                     showProgress();
                     final credential = PhoneAuthProvider.credential(
                       verificationId: verificationId!,
@@ -321,7 +338,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
 
     if (widget.onCompletePhoneNumber != null) {
       return widget.onCompletePhoneNumber?.call(number) ?? number;
-    } else if (countryPicker) {
+    } else if (country != null) {
       return '+${country!.phoneCode}$number';
     } else {
       return number;
@@ -353,5 +370,107 @@ class _PhoneSignInState extends State<PhoneSignIn> {
       phoneNumberController.clear();
       smsCodeController.clear();
     });
+  }
+
+  doEmailLogin([String? emailPassword]) async {
+    log('BEGIN: doEmailLogin()');
+
+    emailPassword ??= phoneNumberController.text;
+
+    showProgress();
+    try {
+      // 전화번호 중간에 @ 이 있으면 : 로 분리해서, 이메일과 비밀번호로 로그인을 한다.
+      // 예) test9@email.com:12345a
+      final email = emailPassword.split(':').first;
+      final password = emailPassword.split(':').last;
+      await loginOrRegister(
+        email: email,
+        password: password,
+        photoUrl: '',
+        displayName: '',
+      );
+      onSignInSuccess();
+    } catch (e) {
+      log('ERROR: doEmailLogin error: $e');
+      if (context.mounted) {
+        hideProgress();
+      }
+      rethrow;
+    }
+  }
+
+  /// Login or register
+  ///
+  /// Creates a user account if it's not existing.
+  ///
+  /// [email] is the email of the user.
+  ///
+  /// [password] is the password of the user.
+  ///
+  /// [photoUrl] is the photo url of the user. If it's null, then it will be the default photo url.
+  ///
+  /// [displayName] is the display name of the user. If it's null, then it will be the same as the email.
+  /// You can put empty string if you want to save it an empty stirng.
+  ///
+  /// Logic:
+  /// Try to login with email and password.
+  ///    -> If it's successful, return the user.
+  ///    -> If it fails, create a new user with email and password.
+  ///        -> If a new account is created, then update the user's display name and photo url.
+  ///        -> And return the user.
+  ///        -> If it's failed (to create a new user), throw an error.
+  ///
+  /// ```dart
+  /// final email = "${randomString()}@gmail.com";
+  /// final randomUser = await Test.loginOrRegister(
+  ///   TestUser(
+  ///     displayName: email,
+  ///     email: email,
+  ///     photoUrl: 'https://picsum.photos/id/1/200/200'
+  ///   ),
+  /// );
+  /// ```
+  ///
+  /// Return the user object of firebase auth and whether the user is registered or not.
+  Future loginOrRegister({
+    required String email,
+    required String password,
+    String? photoUrl,
+    String? displayName,
+  }) async {
+    try {
+      // login
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
+      // create
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+    }
+  }
+
+  /// test2@email.com:12345a
+  doReviewPhoneNumberSubmit() {
+    if (context.mounted) {
+      setState(() {
+        showSmsCodeInput = true;
+        progress = false;
+      });
+    }
+  }
+
+  doReviewSmsCodeSubmit() {
+    if (smsCodeController.text == widget.specialAccounts?.reviewSmsCode) {
+      return doEmailLogin(
+          "${widget.specialAccounts!.reviewEmail}:${widget.specialAccounts!.reviewPassword}");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('[REVIEW] Invalid SMS code. Please retry.'),
+        ),
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:example/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_sign_in/phone_sign_in.dart';
@@ -52,6 +53,17 @@ class _MyHomePageState extends State<MyHomePage> {
               const Text(
                 '1) connect Firebase\n2) Enable Phone Sign-In',
               ),
+              StreamBuilder(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    return Text('User: ${snapshot.data?.uid}');
+                  }),
 
               /// 한국전화번호 또는 필리핀 전화번호를 입력받는 경우,
               Box(
@@ -96,6 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   countryCode: 'KR',
                   onSignInSuccess: onSignInSuccess,
                   onSignInFailed: onSignInFailed,
+                  specialAccounts: const SpecialAccounts(
+                    emailLogin: true,
+                    reviewEmail: 'review123@email.com',
+                    reviewPassword: '12345a',
+                    reviewPhoneNumber: '+821012345678',
+                    reviewSmsCode: '123456',
+                  ),
                 ),
               ),
               Box(

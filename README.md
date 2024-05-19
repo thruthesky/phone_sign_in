@@ -117,4 +117,24 @@ This project is licensed under the MIT License.
 
 ## countryCode
 
-- If countryCode is set, then the user cannot change the country code. And the widget will only use that country code.
+- 이 값은 'KR', 'PH' 와 같이 두 자리 국가 코드를 대문자로 지정하면 된다.
+
+- 이 값이 지정되면, 해당 국가 코드가 자동 선택되며 사용자는 변경을 할 수 없다.
+
+
+
+## onSignInFailed
+
+로그인 실패 할 때 호출되는 콜백 함수로, `FirebaseAuthException` 이 전달되어져 온다.
+
+
+## specialAccount
+
+리뷰를 위한 임시 전화번호를 기록하는 것이다.
+
+
+- `reviewPhoneNumber` 와 `reviewSmsCode` 는 임시 전화번호와 SMS 코드이다. `reviewPhoneNumber` 에는 국제 전화번호 포멧으로 저장해야 한다. 그리고 사용자가 입력하는 전화번호가 국제 전화번호 포멧으로 변경된 다음, `reviewPhoneNumber` 와 일치하는지 비교를 해서 일치하면 리뷰용 (임시) 로그인을 진행한다.
+
+- `reviewEmail` 와 `reviewPassword` 은 임시 전화번호와 SMS 코드를 입력하면 로그인을 할 리뷰용 메일 주소와 비밀번호이다.
+
+- `emailLogin` 이 true 이면, 전화번호 대신에 `test@test.com:12345a` 와 같이 이메일과 비밀번호로 로그인 (자동가입)을 할 수 있다.

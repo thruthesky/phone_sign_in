@@ -1,6 +1,6 @@
 name: phone_sign_in
 description: "Phone sign in with Firebase Authentication."
-version: 0.0.1
+version: 0.0.2
 homepage:
 
 environment:
