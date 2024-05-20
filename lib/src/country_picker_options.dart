@@ -4,6 +4,13 @@ import 'package:flutter/material.dart';
 /// Country picker options
 ///
 /// Shows a bottom sheet containing a list of countries to select one.
+/// These options are the same parameters as the
+/// [CountryPicker.showCountryPicker].
+///
+/// [countryListTheme] is used to controll the bottom sheet's height and
+/// other properties.
+///
+/// See the [CountryPicker.showCountryPicker] for more information.
 class CountryPickerOptions {
   final ValueChanged<Country>? onSelect;
   final VoidCallback? onClosed;

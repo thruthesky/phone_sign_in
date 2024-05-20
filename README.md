@@ -120,3 +120,28 @@ dependencies:
 ## labelEmptyCountry
 
 - 선택된 국가가 없을 때 보여 줄 위젯. 국가를 선택하면 이 위젯이 사라지고 국가 정보가 나타난다.
+
+
+## 에러 핸들링
+
+에러가 발생하면 `onSignInFailed` 콜백 함수가 호출되며 `FirebaseAuthException` 이 인자로 넘어온다. 이 에러 인자를 가지고 적절히 사용자에게 에러 메시지를 알려주면 된다.
+
+```dart
+PhoneSignIn(
+  onSignInFailed: (FirebaseAuthException e) {
+  if (e.code == 'web-context-cancelled') {
+    print('The interaction was cancelled by the user.');
+  } else if (e.code == 'missing-client-identifier') {
+    print("We couldn't verify your phone number at the moment. Please ensure you entered a valid phone number and try again.");
+  } else if (e.code == 'too-many-requests') {
+    print('We have blocked all requests from this device due to unsual activity. Please try again later');
+  } else if (e.code == 'invalid-verification-code') {
+    print('Oops! Incorrect code, Please double-check the code sent to your phone and try again.');
+  } else {
+    dog(
+      'FirebaseAuthException : $e',
+    );
+    throw e;
+  }
+}
+```

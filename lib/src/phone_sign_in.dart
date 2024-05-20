@@ -43,6 +43,9 @@ class PhoneSignIn extends StatefulWidget {
   final String Function(String)? onDisplayPhoneNumber;
 
   final VoidCallback onSignInSuccess;
+
+  /// When the sign-in fails, this function will be called with the
+  /// [FirebaseAuthException] error.
   final void Function(FirebaseAuthException) onSignInFailed;
 
   final Widget? labelOnPhoneNumberTextField;
