@@ -1,4 +1,5 @@
 # Pub examples
+example/lib/firebase_options.dart
 example/.dart_tool
 example/.idea
 example/android
