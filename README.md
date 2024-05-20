@@ -17,44 +17,16 @@ Here is a simple example of how to use the package:
 
 ```yaml
 dependencies:
-    phone_sign_in: ^versionimport 'package:phone_sign_in/phone_sign_in.dart';
+    phone_sign_in: ^version;
 ```
 
-```dart
-void main() {
-  runApp(MyApp());
-}
+## 전화번호 입력
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SignInButton(
-            onPressed: () async {
-              final result = await PhoneSignIn.signInWithPhoneNumber('+1234567890');
-              if (result != null) {
-                // Handle successful sign in
-              } else {
-                // Handle sign in failure
-              }
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-```
+- 사용자가 입력한 전화번호에 `@` 이 들어가 있으면 이메일 회원 가입 또는 로그인을 한다. 사용자가 국가 선택을 했어도 무시하고, 이메일로 로그인한다. 만약, 이전에 가입되어져 있지 않으면 가입을 한다.
 
-For more detailed usage instructions, please refer to the example project in the repository.
+- 사용자가 전화번호가 `+` 으로 시작하면, 사용자가 입력한 전화번호 자체가 국제 전화번호 포멧으로 인식하여 선색된 국가 정보를 무시고, 사용자가 입력한 전화번호로 로그인을 한다.
+  - 예를 들면, 사용자가 국가를 `필리핀`으로 선택한 다음, `+1 1111 1111 11` 와 같이 맨 처음에 `+1` 을 넣어 미국 전화번호를 입력하면, 국가 선택이 `필리핀`으로 되어져 있지만, 무시하고 사용자가 입력한 `+1 1111 1111 11` 으로 파이어베이스 전화번호 로그인을 시도한다.
 
-Contributing
-Contributions are welcome! Please read our contributing guide to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to phone_sign_in.
-
-License
-This project is licensed under the MIT License.
 
 
 ## countryPickerOptions
@@ -83,6 +55,9 @@ This project is licensed under the MIT License.
 즉, `countryPickerOptions` 와 `countryCode` 를 지정하지 않는 경우, 사용자가 `+` 로 시작하는 전화번호를 입력하지 않으면, 전화번호를 국제 전화번호 포멧으로 리턴하는 것이다.
 
 사용자가 입력한 전화번호에서 불필요한 특수문자를 뺀 전화번호가 콜백 함수로 넘어온다. 이 때, 전화번호가 0 으로 시작하면 0을 빼고 리턴한다. 예를 들어 사용자가 010-1111-2222 와 같이 입력하면 `1011112222` 가 파라메타로 넘어온다.
+
+
+
 
 
 
@@ -138,3 +113,10 @@ This project is licensed under the MIT License.
 - `reviewEmail` 와 `reviewPassword` 은 임시 전화번호와 SMS 코드를 입력하면 로그인을 할 리뷰용 메일 주소와 비밀번호이다.
 
 - `emailLogin` 이 true 이면, 전화번호 대신에 `test@test.com:12345a` 와 같이 이메일과 비밀번호로 로그인 (자동가입)을 할 수 있다.
+
+
+
+
+## labelEmptyCountry
+
+- 선택된 국가가 없을 때 보여 줄 위젯. 국가를 선택하면 이 위젯이 사라지고 국가 정보가 나타난다.

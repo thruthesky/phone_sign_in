@@ -1,5 +1,6 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:example/firebase_options.dart';
+import 'package:example/phone_sign_in.screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -62,8 +63,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
-                    return Text('User: ${snapshot.data?.uid}');
+                    return Text(
+                        'User: ${snapshot.data?.uid}, ${snapshot.data?.phoneNumber}, ${snapshot.data?.email}');
                   }),
+
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PhoneSignInScreen(),
+                  ),
+                ),
+                child: const Text('Phone sign-in screen'),
+              ),
 
               /// 한국전화번호 또는 필리핀 전화번호를 입력받는 경우,
               Box(

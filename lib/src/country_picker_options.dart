@@ -1,8 +1,11 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 
+/// Country picker options
+///
+/// Shows a bottom sheet containing a list of countries to select one.
 class CountryPickerOptions {
-  final ValueChanged<Country> onSelect;
+  final ValueChanged<Country>? onSelect;
   final VoidCallback? onClosed;
   final List<String>? favorite;
   final List<String>? exclude;
@@ -18,7 +21,7 @@ class CountryPickerOptions {
   final bool moveAlongWithKeyboard;
 
   const CountryPickerOptions({
-    required this.onSelect,
+    this.onSelect,
     this.onClosed,
     this.favorite,
     this.exclude,

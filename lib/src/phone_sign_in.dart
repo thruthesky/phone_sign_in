@@ -11,8 +11,6 @@ import 'package:phone_sign_in/phone_sign_in.dart';
 ///
 /// If the phone number from user start with '+', then the phone number will be used as it is (without any formatting).
 ///
-///
-///
 class PhoneSignIn extends StatefulWidget {
   const PhoneSignIn({
     super.key,
@@ -32,6 +30,7 @@ class PhoneSignIn extends StatefulWidget {
     this.labelVerifySmsCodeButton,
     this.labelOnCountryPicker,
     this.labelChangeCountry,
+    this.labelEmptyCountry,
     this.hintTextPhoneNumberTextField,
     this.hintTextSmsCodeTextField,
     this.specialAccounts,
@@ -55,6 +54,7 @@ class PhoneSignIn extends StatefulWidget {
   final Widget? labelVerifySmsCodeButton;
   final Widget? labelOnCountryPicker;
   final Widget? labelChangeCountry;
+  final Widget? labelEmptyCountry;
 
   final String? hintTextPhoneNumberTextField;
   final String? hintTextSmsCodeTextField;
@@ -80,6 +80,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
   void initState() {
     super.initState();
 
+    /// If the country code is provided, then parse the country code.
     if (widget.countryCode != null) {
       country = Country.parse(widget.countryCode!);
     }
@@ -88,7 +89,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -106,7 +107,13 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                     widget.countryPickerOptions?.showPhoneCode ?? true,
                 customFlagBuilder:
                     widget.countryPickerOptions?.customFlagBuilder,
-                countryListTheme: widget.countryPickerOptions?.countryListTheme,
+                countryListTheme:
+                    widget.countryPickerOptions?.countryListTheme ??
+                        CountryListThemeData(
+                          bottomSheetHeight:
+                              MediaQuery.of(context).size.height * 0.5,
+                          borderRadius: BorderRadius.circular(16.8),
+                        ),
                 searchAutofocus:
                     widget.countryPickerOptions?.searchAutofocus ?? false,
                 showWorldWide:
@@ -116,7 +123,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                 onSelect: (Country country) {
                   setState(() {
                     this.country = country;
-                    widget.countryPickerOptions?.onSelect(country);
+                    widget.countryPickerOptions?.onSelect?.call(country);
                   });
                 },
                 useRootNavigator:
@@ -126,19 +133,21 @@ class _PhoneSignInState extends State<PhoneSignIn> {
               );
             },
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 widget.labelOnCountryPicker ??
                     const Text('Select your country'),
-                if (country != null) ...[
+                if (country == null)
+                  widget.labelEmptyCountry ?? const SizedBox.shrink()
+                else ...[
                   Text('(+${country!.phoneCode}) ${country!.name}',
                       style: Theme.of(context).textTheme.titleLarge),
                   widget.labelChangeCountry ??
                       Text('Change',
                           style: Theme.of(context).textTheme.labelSmall),
-                ],
+                ]
               ],
             ),
           ),
@@ -279,7 +288,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                     showProgress();
                     final credential = PhoneAuthProvider.credential(
                       verificationId: verificationId!,
-                      smsCode: smsCodeController.text,
+                      smsCode: smsCodeController.text.trim(),
                     );
                     try {
                       await FirebaseAuth.instance
