@@ -1,6 +1,6 @@
 name: phone_sign_in
 description: "Phone number sign-in package for easy phone sign-in with firebase auth."
-version: 0.0.2
+version: 0.0.3
 homepage:
 
 environment:
