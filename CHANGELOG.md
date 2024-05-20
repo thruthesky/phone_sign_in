@@ -1,10 +1,7 @@
-## 0.0.3
-
-* Add. review accounts and email login.
-
 ## 0.0.2
 
-* Firebase phone sign in
+* Add. review accounts and email login.
+* Fix. Firebase phone sign in
 
 ## 0.0.1
 

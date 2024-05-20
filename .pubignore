@@ -5,6 +5,7 @@ example/.idea
 example/android
 example/build
 example/ios
+example/macos
 example/test
 example/README.md
 example/analysis_options.yaml
