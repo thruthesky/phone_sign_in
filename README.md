@@ -20,25 +20,6 @@ dependencies:
     phone_sign_in: ^version;
 ```
 
-## Examples
-
-### Display number in large font size
-
-You can use `titleLarge` like below and the phone number and hint texts should appears in big font size.
-
-```dart
-Theme(
-  data: Theme.of(context).copyWith(
-    textTheme: Theme.of(context).textTheme.copyWith(
-          titleLarge: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 28,
-          ),
-        ),
-  ),
-  child: PhoneSignIn( /* ... */ ),
-)
-```
 
 ## 전화번호 입력
 
@@ -168,9 +149,33 @@ PhoneSignIn(
 
 
 
-## Example of complete phone sign in
+## Examples
 
-Below is the most complete example code. Copy, paste and customize it in your app.
+- See example/lib/main.dart for more example codes.
+
+
+### Display number in large font size
+
+You can use `titleLarge` like below and the phone number and hint texts should appears in big font size.
+
+```dart
+Theme(
+  data: Theme.of(context).copyWith(
+    textTheme: Theme.of(context).textTheme.copyWith(
+          titleLarge: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 28,
+          ),
+        ),
+  ),
+  child: PhoneSignIn( /* ... */ ),
+)
+```
+
+
+### Example of complete phone sign in
+
+Below is the most complete example code. It supports country selection. Copy, paste and customize it in your app.
 
 ```dart
 class PhoneSignInScreen extends StatefulWidget {
