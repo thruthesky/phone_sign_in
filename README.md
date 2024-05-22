@@ -20,6 +20,26 @@ dependencies:
     phone_sign_in: ^version;
 ```
 
+## 예제
+
+### 전화번호 숫자 등을 크게 표시하기
+
+아래와 같이 `titleLarge` 에 전화번호, 입력 박스의 숫자 등을 크게 표시 할 수 있다.
+
+```dart
+Theme(
+  data: Theme.of(context).copyWith(
+    textTheme: Theme.of(context).textTheme.copyWith(
+          titleLarge: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 28,
+          ),
+        ),
+  ),
+  child: PhoneSignIn( /* ... */ ),
+)
+```
+
 ## 전화번호 입력
 
 - 사용자가 입력한 전화번호에 `@` 이 들어가 있으면 이메일 회원 가입 또는 로그인을 한다. 사용자가 국가 선택을 했어도 무시하고, 이메일로 로그인한다. 만약, 이전에 가입되어져 있지 않으면 가입을 한다.

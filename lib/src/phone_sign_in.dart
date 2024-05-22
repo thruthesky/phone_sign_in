@@ -176,6 +176,12 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                     )
                   : null,
               hintText: widget.hintTextPhoneNumberTextField ?? 'Phone number',
+              hintStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.4),
+                  ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -254,6 +260,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
           ],
         ],
         if (showSmsCodeInput) ...[
+          const SizedBox(height: 16),
           widget.labelOnDisplayPhoneNumber ?? const Text('Phone number'),
           Text(
             onDisplayPhoneNumber(),
