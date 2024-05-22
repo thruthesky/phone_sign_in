@@ -20,11 +20,11 @@ dependencies:
     phone_sign_in: ^version;
 ```
 
-## 예제
+## Examples
 
-### 전화번호 숫자 등을 크게 표시하기
+### Display number in large font size
 
-아래와 같이 `titleLarge` 에 전화번호, 입력 박스의 숫자 등을 크게 표시 할 수 있다.
+You can use `titleLarge` like below and the phone number and hint texts should appears in big font size.
 
 ```dart
 Theme(
@@ -162,6 +162,137 @@ PhoneSignIn(
       'FirebaseAuthException : $e',
     );
     throw e;
+  }
+}
+```
+
+
+
+## Example of complete phone sign in
+
+Below is the most complete example code. Copy, paste and customize it in your app.
+
+```dart
+class PhoneSignInScreen extends StatefulWidget {
+  const PhoneSignInScreen({super.key});
+
+  @override
+  State<PhoneSignInScreen> createState() => _PhoneSignInScreenState();
+}
+
+class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('전화번호 로그인'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(lg),
+        child: PhoneSignIn(
+          labelOnCountryPicker: const Padding(
+            padding: EdgeInsets.only(bottom: xxs),
+            child: Text(
+              '국가를 선택하세요',
+            ),
+          ),
+          labelEmptyCountry: _emptyCountry,
+          labelChangeCountry: const Padding(
+            padding: EdgeInsets.only(bottom: xxs),
+            child: Text(' 변경'),
+          ),
+          labelOnPhoneNumberTextField: Text(
+            T.phoneNumberInputHint.tr,
+          ),
+          labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
+          labelVerifyPhoneNumberButton: const Text('인증 코드 전송'),
+          labelRetry: Text(
+            T.phoneSignInRetry.tr,
+          ),
+          labelVerifySmsCodeButton: const Text('인증 코드 확인'),
+          labelOnDisplayPhoneNumber: const Text('전화 번호'),
+          hintTextPhoneNumberTextField: 'XXXXXXXXXX',
+          hintTextSmsCodeTextField: 'XXXXXX',
+          countryPickerOptions: _countryPickerOptions,
+          onSignInSuccess: _onSignInSuccess,
+          onSignInFailed: _onSignInFailed,
+        ),
+      ),
+    );
+  }
+
+  Widget get _emptyCountry {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline,
+          width: 1.8,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        '여기를 탭하셔서 국가를 선택하세요',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
+
+  get _countryPickerOptions {
+    return const CountryPickerOptions(
+      countryFilter: ['KR', 'VN', 'TH', 'LA', 'PH'],
+      showSearch: false,
+    );
+  }
+
+  _onSignInSuccess() async {
+    try {
+      await UserService.instance.login();
+      if (mounted) context.go(HomeScreen.routeName);
+    } catch (e) {
+      dog('ERROR: signinSuccess() method. error: $e');
+      rethrow;
+    }
+  }
+
+  _onSignInFailed(FirebaseAuthException e) {
+    if (e.code == 'web-context-cancelled') {
+      // The interaction was cancelled by the user
+      error(
+        context: context,
+        message: '로그인을 취소했습니다.',
+      );
+    } else if (e.code == 'missing-client-identifier') {
+      error(
+        context: context,
+        message: '전화번호를 확인할 수 없습니다. 올바른 전화번호를 입력했는지 확인하고 다시 시도해 주세요.',
+      );
+    } else if (e.code == 'too-many-requests') {
+      error(
+        context: context,
+        message: '너무 많은 시도로 인해 이 기기의 모든 요청이 차단되었습니다. 나중에 다시 시도 해주십시오',
+      );
+    } else if (e.code == 'invalid-verification-code') {
+      error(
+          context: context,
+          message: '앗! 잘못된 코드입니다. 휴대폰으로 전송된 코드를 다시 확인하신 후 다시 시도해 주세요.');
+    } else if (e.code == 'invalid-phone-number') {
+      error(
+        context: context,
+        message: '잘못된 전화 번호입니다.',
+      );
+    } else {
+      dog(
+        'FirebaseAuthException : $e',
+      );
+      throw e;
+    }
   }
 }
 ```

@@ -65,7 +65,7 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
                 ),
                 countryPickerOptions: const CountryPickerOptions(),
                 onSignInSuccess: () => Navigator.of(context).pop(),
-                onSignInFailed: (error) => print('Error: $error'),
+                onSignInFailed: (error) => debugPrint('Error: $error'),
                 specialAccounts: const SpecialAccounts(
                   emailLogin: true,
                   reviewEmail: 'review123@email.com',

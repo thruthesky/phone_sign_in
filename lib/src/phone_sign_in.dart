@@ -192,71 +192,71 @@ class _PhoneSignInState extends State<PhoneSignIn> {
             widget.labelUnderPhoneNumberTextField!,
           if (phoneNumberController.text.isNotEmpty) ...[
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                if (widget.specialAccounts?.emailLogin == true &&
-                    phoneNumberController.text.contains('@')) {
-                  return doEmailLogin();
-                } else if (onCompletePhoneNumber() ==
-                    widget.specialAccounts?.reviewPhoneNumber) {
-                  return doReviewPhoneNumberSubmit();
-                }
+            progress
+                ? const Center(child: CircularProgressIndicator.adaptive())
+                : ElevatedButton(
+                    onPressed: () async {
+                      if (widget.specialAccounts?.emailLogin == true &&
+                          phoneNumberController.text.contains('@')) {
+                        return doEmailLogin();
+                      } else if (onCompletePhoneNumber() ==
+                          widget.specialAccounts?.reviewPhoneNumber) {
+                        return doReviewPhoneNumberSubmit();
+                      }
 
-                showProgress();
-                FirebaseAuth.instance
-                    .setLanguageCode(widget.firebaseAuthLanguageCode);
+                      showProgress();
+                      FirebaseAuth.instance
+                          .setLanguageCode(widget.firebaseAuthLanguageCode);
 
-                await FirebaseAuth.instance.verifyPhoneNumber(
-                  timeout: const Duration(seconds: 120),
-                  phoneNumber: onCompletePhoneNumber(),
-                  // Android Only. Automatic SMS code resolved. Just go home.
-                  verificationCompleted:
-                      (PhoneAuthCredential credential) async {
-                    // Note that, the app logs in automatically in Anroid, the app may throw time-expire or invalid sms code.
-                    // You can ignore this erorrs.
-                    // Sign the user in (or link) with the auto-generated credential
-                    await FirebaseAuth.instance
-                        .signInWithCredential(credential);
-                    onSignInSuccess();
-                  },
-                  // Phone number verification failed or there is an error on Firebase like quota exceeded.
-                  // This is not for the failures of SMS code verification!!
-                  verificationFailed: (FirebaseAuthException e) {
-                    onSignInFailed(e);
-                  },
-                  // Phone number verfied and SMS code sent to user.
-                  // Show SMS code input UI.
-                  codeSent: (String verificationId, int? resendToken) {
-                    this.verificationId = verificationId;
-                    setState(() {
-                      showSmsCodeInput = true;
-                      hideProgress();
-                    });
-                  },
-                  // Only for Android. This timeout may happens when the Phone Signal is not stable.
-                  codeAutoRetrievalTimeout: (String verificationId) {
-                    // Auto-resolution timed out...
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'SMS code auto-resolution timed out. Please retry.',
-                          ),
-                        ),
+                      await FirebaseAuth.instance.verifyPhoneNumber(
+                        timeout: const Duration(seconds: 120),
+                        phoneNumber: onCompletePhoneNumber(),
+                        // Android Only. Automatic SMS code resolved. Just go home.
+                        verificationCompleted:
+                            (PhoneAuthCredential credential) async {
+                          // Note that, the app logs in automatically in Anroid, the app may throw time-expire or invalid sms code.
+                          // You can ignore this erorrs.
+                          // Sign the user in (or link) with the auto-generated credential
+                          await FirebaseAuth.instance
+                              .signInWithCredential(credential);
+                          onSignInSuccess();
+                        },
+                        // Phone number verification failed or there is an error on Firebase like quota exceeded.
+                        // This is not for the failures of SMS code verification!!
+                        verificationFailed: (FirebaseAuthException e) {
+                          onSignInFailed(e);
+                        },
+                        // Phone number verfied and SMS code sent to user.
+                        // Show SMS code input UI.
+                        codeSent: (String verificationId, int? resendToken) {
+                          this.verificationId = verificationId;
+                          setState(() {
+                            showSmsCodeInput = true;
+                            hideProgress();
+                          });
+                        },
+                        // Only for Android. This timeout may happens when the Phone Signal is not stable.
+                        codeAutoRetrievalTimeout: (String verificationId) {
+                          // Auto-resolution timed out...
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'SMS code auto-resolution timed out. Please retry.',
+                                ),
+                              ),
+                            );
+                            setState(() {
+                              showSmsCodeInput = false;
+                            });
+                            hideProgress();
+                          }
+                        },
                       );
-                      setState(() {
-                        showSmsCodeInput = false;
-                      });
-                      hideProgress();
-                    }
-                  },
-                );
-              },
-              child: progress
-                  ? const CircularProgressIndicator.adaptive()
-                  : widget.labelVerifyPhoneNumberButton ??
-                      const Text('Verify phone number'),
-            ),
+                    },
+                    child: widget.labelVerifyPhoneNumberButton ??
+                        const Text('Verify phone number'),
+                  ),
           ],
         ],
         if (showSmsCodeInput) ...[
@@ -289,30 +289,32 @@ class _PhoneSignInState extends State<PhoneSignIn> {
               ),
               const Spacer(),
               if (smsCodeController.text.isNotEmpty)
-                ElevatedButton(
-                  onPressed: () async {
-                    if (onCompletePhoneNumber() ==
-                        widget.specialAccounts?.reviewPhoneNumber) {
-                      return doReviewSmsCodeSubmit();
-                    }
-                    showProgress();
-                    final credential = PhoneAuthProvider.credential(
-                      verificationId: verificationId!,
-                      smsCode: smsCodeController.text.trim(),
-                    );
-                    try {
-                      await FirebaseAuth.instance
-                          .signInWithCredential(credential);
-                      onSignInSuccess();
-                    } on FirebaseAuthException catch (e) {
-                      onSignInFailed(e);
-                    }
-                  },
-                  child: progress
-                      ? const CircularProgressIndicator.adaptive()
-                      : widget.labelVerifySmsCodeButton ??
-                          const Text('Verify SMS code'),
-                ),
+                progress
+                    ? const Padding(
+                        padding: EdgeInsets.only(right: 16),
+                        child: CircularProgressIndicator.adaptive())
+                    : ElevatedButton(
+                        onPressed: () async {
+                          if (onCompletePhoneNumber() ==
+                              widget.specialAccounts?.reviewPhoneNumber) {
+                            return doReviewSmsCodeSubmit();
+                          }
+                          showProgress();
+                          final credential = PhoneAuthProvider.credential(
+                            verificationId: verificationId!,
+                            smsCode: smsCodeController.text.trim(),
+                          );
+                          try {
+                            await FirebaseAuth.instance
+                                .signInWithCredential(credential);
+                            onSignInSuccess();
+                          } on FirebaseAuthException catch (e) {
+                            onSignInFailed(e);
+                          }
+                        },
+                        child: widget.labelVerifySmsCodeButton ??
+                            const Text('Verify SMS code'),
+                      ),
             ],
           )
         ],

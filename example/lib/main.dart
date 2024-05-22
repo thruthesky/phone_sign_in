@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   hintTextSmsCodeTextField: 'SMS 코드',
                   onCompletePhoneNumber: onCompletePhoneNumber,
                   onDisplayPhoneNumber: (phoneNumber) {
-                    print('Got -> display phone number: $phoneNumber');
+                    debugPrint('Got -> display phone number: $phoneNumber');
 
                     if (phoneNumber.startsWith('+8210')) {
                       phoneNumber = phoneNumber.replaceFirst('+82', '0');
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           '${phoneNumber.substring(0, 4)}-${phoneNumber.substring(4, 7)}-${phoneNumber.substring(7)}';
                     }
 
-                    print('Return -> display phone number: $phoneNumber');
+                    debugPrint('Return -> display phone number: $phoneNumber');
                     return phoneNumber;
                   },
                   onSignInSuccess: onSignInSuccess,
@@ -142,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomSheetHeight: 400,
                     ),
                     onSelect: (country) {
-                      print('Country: ${country.name}');
+                      debugPrint('Country: ${country.name}');
                     },
                   ),
                   onSignInSuccess: onSignInSuccess,
@@ -162,12 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (phoneNumber.startsWith('9')) {
       phoneNumber = '+63$phoneNumber';
     }
-    print('Phone number: $phoneNumber');
+    debugPrint('Phone number: $phoneNumber');
     return phoneNumber;
   }
 
   void onSignInSuccess() {
-    print('Sign in success');
+    debugPrint('Sign in success');
   }
 
   void onSignInFailed(e) => ScaffoldMessenger.of(context).showSnackBar(
