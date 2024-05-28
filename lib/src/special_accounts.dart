@@ -15,10 +15,10 @@ class SpecialAccounts {
   final bool emailLogin;
 
   const SpecialAccounts({
-    required this.reviewEmail,
-    required this.reviewPassword,
-    required this.reviewPhoneNumber,
-    required this.reviewSmsCode,
+    this.reviewEmail = 'review@email.com',
+    this.reviewPassword = '',
+    this.reviewPhoneNumber = '123456789',
+    this.reviewSmsCode = '',
     this.emailLogin = true,
   });
 }

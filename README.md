@@ -114,6 +114,7 @@ dependencies:
 - `reviewEmail` 와 `reviewPassword` 은 임시 전화번호와 SMS 코드를 입력하면 로그인을 할 리뷰용 메일 주소와 비밀번호이다.
 
 - `emailLogin` 이 true 이면, 전화번호 대신에 `test@test.com:12345a` 와 같이 이메일과 비밀번호로 로그인 (자동가입)을 할 수 있다.
+  참고로, 비밀번호를 입력하지 않고 이메일 주소만 입력하면, (예: `test@test.com` 만 입력), 프로그램 로직상 비밀번호가 이메일 주소와 동일하게 설정된다.
 
 
 

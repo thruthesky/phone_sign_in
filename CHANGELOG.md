@@ -1,3 +1,6 @@
+## 0.0.4
+* Fix. malformed phone number string
+
 ## 0.0.3
 * Update. minor ui update
 

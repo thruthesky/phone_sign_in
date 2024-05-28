@@ -196,12 +196,15 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : ElevatedButton(
                     onPressed: () async {
+                      final completePhoneNumber = onCompletePhoneNumber();
                       if (widget.specialAccounts?.emailLogin == true &&
                           phoneNumberController.text.contains('@')) {
                         return doEmailLogin();
-                      } else if (onCompletePhoneNumber() ==
+                      } else if (completePhoneNumber ==
                           widget.specialAccounts?.reviewPhoneNumber) {
                         return doReviewPhoneNumberSubmit();
+                      } else if (completePhoneNumber.isEmpty) {
+                        throw Exception('Phone number is empty or malformed.');
                       }
 
                       showProgress();
@@ -210,7 +213,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
 
                       await FirebaseAuth.instance.verifyPhoneNumber(
                         timeout: const Duration(seconds: 120),
-                        phoneNumber: onCompletePhoneNumber(),
+                        phoneNumber: completePhoneNumber,
                         // Android Only. Automatic SMS code resolved. Just go home.
                         verificationCompleted:
                             (PhoneAuthCredential credential) async {
@@ -343,19 +346,23 @@ class _PhoneSignInState extends State<PhoneSignIn> {
   /// This function should return the phone number in the international phone number format.
   ///
   /// 이 함수가 리턴하는 전화번호는 Firebase Phone Sign-in 에 사용되므로, 국제 전화번호 형식으로 반환해야 한다.
+  ///
+  /// 로직:
+  /// - 전화번호에서 플러스(+)와 숫자가 아닌 모든 것 (예: 콤마, 하이픈, 괄호, 공백) 등을 제거한다.
+  /// - 숫자 0으로 시작하면 제거한다.
+  /// - 플러스(+) 로 시작하면 그대로 리턴한다.
+  /// - 그렇지 않으면, [onCompletePhoneNumber] 함수를 호출하거나, 국제 전화번호 형식으로 리턴한다.
   String onCompletePhoneNumber() {
     final phoneNumber = phoneNumberController.text;
     String number = phoneNumber.trim();
+
+    number = number.replaceAll(RegExp(r'[^\+0-9]'), '');
+    number = number.replaceFirst(RegExp(r'^0'), '');
+
     if (number.startsWith('+')) {
       log('--> onCompletePhoneNumber: $number starts with +. No formatting needed.');
       return number;
     }
-    number = number.replaceAll(RegExp(r'[^\+0-9]'), '');
-    number = number.replaceFirst(RegExp(r'^0'), '');
-    number = number.replaceAll(' ', '');
-    number = number.replaceAll('-', '');
-    number = number.replaceAll('(', '');
-    number = number.replaceAll(')', '');
 
     if (widget.onCompletePhoneNumber != null) {
       return widget.onCompletePhoneNumber?.call(number) ?? number;
@@ -411,8 +418,9 @@ class _PhoneSignInState extends State<PhoneSignIn> {
         displayName: '',
       );
       onSignInSuccess();
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       log('ERROR: doEmailLogin error: $e');
+      onSignInFailed(e);
       if (context.mounted) {
         hideProgress();
       }
