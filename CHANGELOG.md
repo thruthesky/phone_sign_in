@@ -1,3 +1,6 @@
+## 0.0.5
+* Update. document
+
 ## 0.0.4
 * Fix. malformed phone number string
 

@@ -1,6 +1,6 @@
 # Phone Sign In
 
-This is a Flutter package that simplifies the process of implementing Google phone sign-in in your application.
+This Flutter package is designed to streamline the integration of Google's phone sign-in functionality into your application, making the process seamless and efficient.
 
 ## Features
 
@@ -21,112 +21,126 @@ dependencies:
 ```
 
 
-## 전화번호 입력
+## Phone number input
 
-- 사용자가 입력한 전화번호에 `@` 이 들어가 있으면 이메일 회원 가입 또는 로그인을 한다. 사용자가 국가 선택을 했어도 무시하고, 이메일로 로그인한다. 만약, 이전에 가입되어져 있지 않으면 가입을 한다.
+If the user's phone number starts with '+', the phone number entered by the user is recognized as an international phone number format. And the app will ignore the selected country information, and the user will log in with the phone number they entered.
 
-- 사용자가 전화번호가 `+` 으로 시작하면, 사용자가 입력한 전화번호 자체가 국제 전화번호 포멧으로 인식하여 선색된 국가 정보를 무시고, 사용자가 입력한 전화번호로 로그인을 한다.
-  - 예를 들면, 사용자가 국가를 `필리핀`으로 선택한 다음, `+1 1111 1111 11` 와 같이 맨 처음에 `+1` 을 넣어 미국 전화번호를 입력하면, 국가 선택이 `필리핀`으로 되어져 있지만, 무시하고 사용자가 입력한 `+1 1111 1111 11` 으로 파이어베이스 전화번호 로그인을 시도한다.
-
+For example, if the user selects the country as 'Philippines' and then enters a US phone number like '+1 1111 1111 11' at the beginning, although the country selection is set to 'Philippines', it ignores this and attempts to log in to Firebase with the phone number '+1 1111 1111 11' entered by the user.
 
 
 ## countryPickerOptions
 
-`countryPickerOptions` 는 국가를 선택 할 수 있게 해 준다. 이 옵션이 생략되면, 위젯에서 국가 선택 화면을 보여주지 않는다.
+`countryPickerOptions` allows you to select a country. If this option is omitted, the widget does not display the country selection on the screen.
+
 
 
 ## countryCode
 
-국가 코드를 선택할 수 있는 버튼을 보여주지 않고, 그냥 국가 코드를 고정시킨다. 이 경우 사용자는 국가를 변경 할 수 없다.
+When this option is enabled, the button for selecting the country code is hidden and the country code is set to a fixed value. Consequently, users are unable to modify the country selection.
 
 
 ## firebaseAuthLanguageCode
 
-파이어베이스 전화번호 로그인에서 사용할 기본 언어이다.
+`firebaseAuthLanguageCode` is the default language used in Firebase phone number login. This is the same option used in Firebase Auth.
+
 
 ## onCompletePhoneNumber
 
-`onCompletePhoneNumber` 는 국제 전화번호 포멧이 필요한 경우 호출되는 함수이고, 국제 전화번호 포멧을 리턴해야하는 함수이다.
+The `PhoneSignIn` widget automatically formats the phone number entered by the user into an international number, based on the country selected.
 
-사용자가 입력한 전화번호를 국제 전화번호 포맷으로 바꾸어 리턴하면, Firebase phone sign-in 으로 전송하여 로그인을 하는 것이다. 이 함수가 생략되면 선택된 국가 코드에 맞춰서 자동으로 국제 전화번호를 표시한다.
-이 함수는 주로, `countryPickerOptions` 와 `countryCode` 를 지정하지 않을 때 사용하는데, 사용자가 직접 "+821012345678" 과 같이 국제 전화번호를 입력해야하는데, "01012345678"와 같이 입력한 경우, 이 함수에서 적절히 국제 전화번호 포멧으로 변경해서 리턴하면 된다.
+However, if you wish to customize the international phone number, you can utilize the `onCompletePhoneNumber` callback. This function is invoked when the widget requires the phone number in an international format. It will only pass the phone number entered by the user, excluding the country code. Therefore, if you want to use the country code selected by the user, you should avoid setting this callback function and allow the widget to automatically construct the international phone number.
 
-주의, 사용자가 입력한 전화번호가 `+` 로 시작하면, onCompletePhoneNumber 함수가 호출되지 않는다. 즉, 사용자가 입력한 전화번호가 완전한 국제 전화번호라고 인식을 하여, 국제 전화번호로 변환하는 함수를 호출하지 않는 것이다.
+You might want to simplify the process for users by automatically adding the country code to their phone number. For example, in Korea, phone numbers always start with "010", and in the Philippines, they start with "09". So, if a user enters their phone number as "01012345678", you can programmatically update it to "+821012345678" to convert it into an international format. Similarly, if a user enters their phone number as "091212345678", you can update it to "+6391212345678".
 
-즉, `countryPickerOptions` 와 `countryCode` 를 지정하지 않는 경우, 사용자가 `+` 로 시작하는 전화번호를 입력하지 않으면, 전화번호를 국제 전화번호 포멧으로 리턴하는 것이다.
+This function is primarily used when `countryPickerOptions` and `countryCode` are not specified. In this case, since the user cannot select the country code on the screen, it is used to programmatically add the country code.
 
-사용자가 입력한 전화번호에서 불필요한 특수문자를 뺀 전화번호가 콜백 함수로 넘어온다. 이 때, 전화번호가 0 으로 시작하면 0을 빼고 리턴한다. 예를 들어 사용자가 010-1111-2222 와 같이 입력하면 `1011112222` 가 파라메타로 넘어온다.
+Note, if the phone number entered by the user starts with '+', the `onCompletePhoneNumber` function is not called. In other words, the widget recognizes the user's input as a complete international phone number and does not call the `onCompletePhoneNumber` function to convert it into an international format.
 
+So, if `countryPickerOptions` and `countryCode` are not specified, and the user does not enter a phone number starting with '+', the `onCompletePhoneNumber` will be called and return the phone number in international format.
 
-
+The `onCompletePhoneNumber` function receives the phone number entered by the user, stripped of unnecessary special characters. If the phone number starts with '0', it is removed. For example, if the user enters '010-1111-2222', '1011112222' is passed as a parameter.
 
 
 
 ## onDisplayPhoneNumber
 
-화면에 보여줄 전화번호이다. `onCompletePhoneNumber` 와는 다르게, Firebase phone sign-in 에 사용되지 않고, 그냥 화면에 보여줄 전화번호이다.
+The `onDisplayPhoneNumber` function is a callback function that returns the phone number to be displayed on the screen. The value returned by the `onCompletePhoneNumber` function is used for Firebase phone sign-in, but the phone number this function returns is just for displaying on the screen in a user-friendly format.
 
-예를 들어, 한국 사람만 회원 가입하는 경우, 전화번호가 `"+82" (KR)` 로 고정할 수 있는데, 이 때 화면에 "+821012345678" 으로 보여주는 것 보다 "010-1234-5678"로 보여 줄 수 있다.
+For example, if only Korean people are signing up, you can fix the phone number code to `+82` through the `countryCode` option. In this case, it's more user-friendly to display the number as "010-1234-5678" instead of "+821012345678". That's what this function is for.
 
-특히, 전화번호를 입력하고 SMS 코드를 보낸 경우, 화면에 표시 할 전화번호로 사용된다.
+Especially after entering the phone number and sending the SMS code, you need to display the phone number on the screen. You can use this function to display the phone number in a user-friendly format.
 
-이 콜백 함수에는 국제 전화번호가 전달되어 온다. 보다 정확하게는 `onCompletePhoneNumber` 가 리턴하는 값이 전달되어져 오는 것이다.
-
-
-## 몇 개 국가의 전화번호만 받기
-
-한국과 필리핀 두 개의 국가만 지원하는 경우, `countryPickerOptions` 와 `countryCode` 를 지정하지 않고, 사용자가 자유롭게 전화번호를 "010-1234-5678" 또는 "0917-111-2222" 와 같이 입력하도록 한다.
-
-그래서 `onCompletePhoneNumber` 에서는 전화번호가 010 으로 시작하면 +821012345678 로 변경하고, 09 로 시작하면 +639171112222 와 같이 변경해서 리턴하면 된다.
-
-그리고 화면에 표시하는 전화번호는 `onDisplayPhoneNumber` 에서 적절히 표현을 해 주면 된다.
-
-
-
+The `onDisplayPhoneNumber` function receives the international phone number. More precisely, it receives the value returned by `onCompletePhoneNumber`.
 
 
 
 ## no country code picker
 
-- If the app does not set `countryCode` and `countryPickerOption`, then the user cannot choose a country. The user must input the international phone number by himself.
+- If the app does not set `countryCode` and `countryPickerOption`, then the widget cannot make an international phone number. And the user cannot choose a country. But the user may input the international phone number by himself.
 
 
 ## countryCode
 
-- 이 값은 'KR', 'PH' 와 같이 두 자리 국가 코드를 대문자로 지정하면 된다.
+- For this option, specify a two-letter uppercase country code as a string value, such as 'KR' or 'PH'.
 
-- 이 값이 지정되면, 해당 국가 코드가 자동 선택되며 사용자는 변경을 할 수 없다.
+- If this option is set, the corresponding country code is fixed and the user cannot change the country.
 
 
 
 ## onSignInFailed
 
-로그인 실패 할 때 호출되는 콜백 함수로, `FirebaseAuthException` 이 전달되어져 온다.
+- If the phone number sign-in fails for various reasons, the `onSignInFailed` callback function is called. This function receives `FirebaseAuthException` as a parameter.
 
 
 ## specialAccount
 
-리뷰를 위한 임시 전화번호를 기록하는 것이다.
+The `specialAccount` option allows you to log in using methods other than phone number login, and it can simulate temporary phone number login for review. For example, if there is an error in phone number login during iOS review, or if you are asked to show the entire process of phone number login, you can use a review account.
 
+- `reviewPhoneNumber` and `reviewSmsCode` are temporary phone numbers and SMS codes. `reviewPhoneNumber` should be stored in international phone number format. After the user's input phone number is converted into an international phone number format, it is compared with `reviewPhoneNumber`. If they match, a review (temporary) login is performed. By setting this option, you can simulate the entire process of actual phone number login. These options can be used for review when submitting to the iOS Appstore.
 
-- `reviewPhoneNumber` 와 `reviewSmsCode` 는 임시 전화번호와 SMS 코드이다. `reviewPhoneNumber` 에는 국제 전화번호 포멧으로 저장해야 한다. 그리고 사용자가 입력하는 전화번호가 국제 전화번호 포멧으로 변경된 다음, `reviewPhoneNumber` 와 일치하는지 비교를 해서 일치하면 리뷰용 (임시) 로그인을 진행한다.
+- `reviewEmail` and `reviewPassword` are the email address and password for review that will be used to log in when a temporary phone number and SMS code are entered. If you log in with the above `reviewPhoneNumber` and `reviewSmsCode`, you do not actually log in with this phone number, but instead log in with this `reviewEmail`.
 
-- `reviewEmail` 와 `reviewPassword` 은 임시 전화번호와 SMS 코드를 입력하면 로그인을 할 리뷰용 메일 주소와 비밀번호이다.
-
-- `emailLogin` 이 true 이면, 전화번호 대신에 `test@test.com:12345a` 와 같이 이메일과 비밀번호로 로그인 (자동가입)을 할 수 있다.
-  참고로, 비밀번호를 입력하지 않고 이메일 주소만 입력하면, (예: `test@test.com` 만 입력), 프로그램 로직상 비밀번호가 이메일 주소와 동일하게 설정된다.
-
-
+- If `emailLogin` is true, you can log in (auto-signup) with an email and password like `test@test.com:12345a` instead of a phone number.
+  - If this option is set to true and the phone number entered by the user contains `@`, it signs up or logs in with email. Even if the user has selected a country, it ignores it and logs in with email. If it has not been registered before, it registers.
+  - Note that if you only enter an email address without a password (for example, only `test@test.com` is entered), the password is set to be the same as the email address.
 
 
 ## labelEmptyCountry
 
-- 선택된 국가가 없을 때 보여 줄 위젯. 국가를 선택하면 이 위젯이 사라지고 국가 정보가 나타난다.
+- `labelEmptyCountry` is a widget that will be displayed on the screen when no country is selected. When a country is selected, this widget disappears and the country information appears.
 
 
-## 에러 핸들링
 
-에러가 발생하면 `onSignInFailed` 콜백 함수가 호출되며 `FirebaseAuthException` 이 인자로 넘어온다. 이 에러 인자를 가지고 적절히 사용자에게 에러 메시지를 알려주면 된다.
+## labelOnPhoneNumberTextField
+
+## labelUnderPhoneNumberTextField
+
+## labelVerifyPhoneNumberButton
+
+## labelOnDisplayPhoneNumber
+
+## labelOnSmsCodeTextField
+
+## labelRetry
+
+## labelVerifySmsCodeButton
+
+## labelOnCountryPicker
+
+## labelChangeCountry
+
+## labelEmptyCountry
+
+## hintTextPhoneNumberTextField
+
+## hintTextSmsCodeTextField
+
+
+
+## Error handling
+
+If an error occurs, the `onSignInFailed` callback function is called and `FirebaseAuthException` is passed as an argument. You can use this error argument to appropriately notify the user of the error message.
+
 
 ```dart
 PhoneSignIn(
@@ -152,12 +166,12 @@ PhoneSignIn(
 
 ## Examples
 
-- See example/lib/main.dart for more example codes.
+- For more detailed examples and usage, please refer to the `main.dart` file in the `example` directory.
 
 
 ### Display number in large font size
 
-You can use `titleLarge` like below and the phone number and hint texts should appears in big font size.
+To adjust the font size of the phone number and hint texts, you can utilize `Theme.of(context).textTheme.copyWith()`. Here's an example of how to do it:
 
 ```dart
 Theme(
@@ -173,10 +187,17 @@ Theme(
 )
 ```
 
+### Customize user input phone number with onCompletePhoneNumber
+
+If a user enters a Korean phone number like "01012345678" and you want to convert it to an international phone number like "+821012345678", you can refer to the example code in the `phone_sign_in/example/lib/main.dart` source file.
+
+
+
+
 
 ### Example of complete phone sign in
 
-Below is the most complete example code. It supports country selection. Copy, paste and customize it in your app.
+Here's a comprehensive example code that includes country selection. Feel free to copy, paste, and tailor it to your application's needs.
 
 ```dart
 class PhoneSignInScreen extends StatefulWidget {
