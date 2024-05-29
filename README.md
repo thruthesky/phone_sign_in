@@ -105,35 +105,38 @@ The `specialAccount` option allows you to log in using methods other than phone 
   - Note that if you only enter an email address without a password (for example, only `test@test.com` is entered), the password is set to be the same as the email address.
 
 
-## labelEmptyCountry
+## Labels and Hints
+
+
+### labelEmptyCountry
 
 - `labelEmptyCountry` is a widget that will be displayed on the screen when no country is selected. When a country is selected, this widget disappears and the country information appears.
 
 
 
-## labelOnPhoneNumberTextField
+### labelOnPhoneNumberTextField
 
-## labelUnderPhoneNumberTextField
+### labelUnderPhoneNumberTextField
 
-## labelVerifyPhoneNumberButton
+### labelVerifyPhoneNumberButton
 
-## labelOnDisplayPhoneNumber
+### labelOnDisplayPhoneNumber
 
-## labelOnSmsCodeTextField
+### labelOnSmsCodeTextField
 
-## labelRetry
+### labelRetry
 
-## labelVerifySmsCodeButton
+### labelVerifySmsCodeButton
 
-## labelOnCountryPicker
+### labelOnCountryPicker
 
-## labelChangeCountry
+### labelChangeCountry
 
-## labelEmptyCountry
+### labelEmptyCountry
 
-## hintTextPhoneNumberTextField
+### hintTextPhoneNumberTextField
 
-## hintTextSmsCodeTextField
+### hintTextSmsCodeTextField
 
 
 
