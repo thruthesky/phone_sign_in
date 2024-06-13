@@ -204,7 +204,8 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                           widget.specialAccounts?.reviewPhoneNumber) {
                         return doReviewPhoneNumberSubmit();
                       } else if (completePhoneNumber.isEmpty) {
-                        throw Exception('Phone number is empty or malformed.');
+                        throw Exception(
+                            '@phone_sign_in/malformed-phone-number Phone number is empty or malformed.');
                       }
 
                       showProgress();

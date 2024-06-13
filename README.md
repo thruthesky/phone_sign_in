@@ -326,3 +326,10 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
   }
 }
 ```
+
+
+
+## Exceptions
+
+- `Exception: @phone_sign_in/malformed-phone-number Phone number is empty or malformed.` will be thrown when the user input a invlaid phone number. You would meet this exception especially when the `emailLogin` is set to true, and you input email.
+

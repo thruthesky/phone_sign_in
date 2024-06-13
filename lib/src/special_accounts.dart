@@ -19,6 +19,6 @@ class SpecialAccounts {
     this.reviewPassword = '',
     this.reviewPhoneNumber = '123456789',
     this.reviewSmsCode = '',
-    this.emailLogin = true,
+    this.emailLogin = false,
   });
 }
