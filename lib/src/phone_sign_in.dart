@@ -287,7 +287,8 @@ class _PhoneSignInState extends State<PhoneSignIn> {
           const SizedBox(height: 16),
           Row(
             children: [
-              ElevatedButton(
+              /// 2024. 06. 26. by @thruthesky: ElevatedButton is replaced with TextButton since it gives too much focus.
+              TextButton(
                 onPressed: retry,
                 child: widget.labelRetry ?? const Text('Retry'),
               ),
