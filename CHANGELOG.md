@@ -1,6 +1,8 @@
+## 0.0.7
+* Add. link current user option
+
 ## 0.0.6
 * Update. dependencies
-
 
 ## 0.0.5
 * Update. document
