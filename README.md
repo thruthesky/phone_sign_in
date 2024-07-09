@@ -10,38 +10,10 @@ This Flutter package is designed to streamline the integration of Google's phone
 
 ## Installation
 
-To use this package, add `phone_sign_in` as a [dependency in your pubspec.yaml file](https://flutter.dev/docs/development/packages-and-plugins/using-packages).
+- To use this package, add `phone_sign_in` as a [dependency in your pubspec.yaml file](https://flutter.dev/docs/development/packages-and-plugins/using-packages).
 
-Usage
-Here is a simple example of how to use the package:
+- And do the setup as stated in [Firebase Phone Authentication Setup](https://firebase.google.com/docs/auth/flutter/phone-auth#setup)
 
-```yaml
-dependencies:
-    phone_sign_in: ^version;
-```
-You migth need to register your custom URL Scheme on app's info.plist file 
-
-```plist
-<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>{your app id}</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>{your bundle id}</string>
-			</array>
-		</dict>
-</array>
-```
 
 ## Phone number input
 
@@ -81,6 +53,16 @@ Note, if the phone number entered by the user starts with '+', the `onCompletePh
 So, if `countryPickerOptions` and `countryCode` are not specified, and the user does not enter a phone number starting with '+', the `onCompletePhoneNumber` will be called and return the phone number in international format.
 
 The `onCompletePhoneNumber` function receives the phone number entered by the user, stripped of unnecessary special characters. If the phone number starts with '0', it is removed. For example, if the user enters '010-1111-2222', '1011112222' is passed as a parameter.
+
+
+## linkCurrentUser
+
+if `linkCurrentUser` is set to true, it will attempts to link the current user account to the provided phone sign in credential, and if the provided phone sign account is already in used it will just perform a normal sign with the existing account. And if the user didn't signed in, it will just perform a normal sign in.
+
+
+Note that, when the user signed as a phone number, he cannot link with another phone number credential. To know more about it, refer Firebase Auth documents.
+
+
 
 
 
@@ -125,8 +107,6 @@ The `specialAccount` option allows you to log in using methods other than phone 
 - If `emailLogin` is true, you can log in (auto-signup) with an email and password like `test@test.com:12345a` instead of a phone number.
   - If this option is set to true and the phone number entered by the user contains `@`, it signs up or logs in with email. Even if the user has selected a country, it ignores it and logs in with email. If it has not been registered before, it registers.
   - Note that if you only enter an email address without a password (for example, only `test@test.com` is entered), the password is set to be the same as the email address.
-
-- if `linkPhoneNumber` is true, it will attempts to link the current user account to the provided phone sign in account, and if the provided phone sign account is already in used it will just perform a normal sign with the existing account and if there are currently no user exist to link it will just perform a normal sign in.
 
 ## Labels and Hints
 

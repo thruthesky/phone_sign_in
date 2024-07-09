@@ -11,6 +11,8 @@ import 'package:phone_sign_in/phone_sign_in.dart';
 ///
 /// If the phone number from user start with '+', then the phone number will be used as it is (without any formatting).
 ///
+///
+///
 class PhoneSignIn extends StatefulWidget {
   const PhoneSignIn({
     super.key,
@@ -33,6 +35,7 @@ class PhoneSignIn extends StatefulWidget {
     this.labelEmptyCountry,
     this.hintTextPhoneNumberTextField,
     this.hintTextSmsCodeTextField,
+    this.linkCurrentUser = false,
     this.specialAccounts,
   });
 
@@ -61,6 +64,8 @@ class PhoneSignIn extends StatefulWidget {
 
   final String? hintTextPhoneNumberTextField;
   final String? hintTextSmsCodeTextField;
+
+  final bool linkCurrentUser;
 
   final SpecialAccounts? specialAccounts;
 
@@ -310,8 +315,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                             smsCode: smsCodeController.text.trim(),
                           );
                           try {
-                            if (widget.specialAccounts?.linkPhoneNumber ==
-                                true) {
+                            if (widget.linkCurrentUser) {
                               log('linking anonymous account --->>> phone number ');
                               await linkOrSignInWithCredential(credential);
                             } else {

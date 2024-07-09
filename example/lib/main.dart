@@ -45,111 +45,136 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Phone Sign In Demo'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                '1) connect Firebase\n2) Enable Phone Sign-In',
-              ),
-              StreamBuilder(
-                  stream: FirebaseAuth.instance.authStateChanges(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    return Text(
-                        'User: ${snapshot.data?.uid}, ${snapshot.data?.phoneNumber}, ${snapshot.data?.email}');
-                  }),
-
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PhoneSignInScreen(),
-                  ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  '1) connect Firebase\n2) Enable Phone Sign-In',
                 ),
-                child: const Text('Phone sign-in screen'),
-              ),
+                StreamBuilder(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      return Text(
+                          'User: ${snapshot.data?.uid}, ${snapshot.data?.phoneNumber}, ${snapshot.data?.email}');
+                    }),
 
-              /// 한국전화번호 또는 필리핀 전화번호를 입력받는 경우,
-              Box(
-                child: PhoneSignIn(
-                  labelOnPhoneNumberTextField: const Text(
-                    ' 한국 또는 필리핀 전화번호를 입력하세요.',
-                  ),
-                  labelUnderPhoneNumberTextField: Text(
-                    ' 예) 010 1234 5678 또는 0917 1111 2222',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                  labelVerifyPhoneNumberButton: const Text('전화번호 인증'),
-                  labelOnDisplayPhoneNumber: const Text('전화번호'),
-                  labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
-                  labelRetry: const Text('재시도'),
-                  labelVerifySmsCodeButton: const Text('SMS 코드 인증'),
-                  hintTextPhoneNumberTextField: '전화번호',
-                  hintTextSmsCodeTextField: 'SMS 코드',
-                  onCompletePhoneNumber: onCompletePhoneNumber,
-                  onDisplayPhoneNumber: (phoneNumber) {
-                    debugPrint('Got -> display phone number: $phoneNumber');
-
-                    if (phoneNumber.startsWith('+8210')) {
-                      phoneNumber = phoneNumber.replaceFirst('+82', '0');
-                      phoneNumber =
-                          '${phoneNumber.substring(0, 3)}-${phoneNumber.substring(3, 7)}-${phoneNumber.substring(7)}';
-                    } else if (phoneNumber.startsWith('+639')) {
-                      phoneNumber = phoneNumber.replaceFirst('+63', '0');
-                      phoneNumber =
-                          '${phoneNumber.substring(0, 4)}-${phoneNumber.substring(4, 7)}-${phoneNumber.substring(7)}';
-                    }
-
-                    debugPrint('Return -> display phone number: $phoneNumber');
-                    return phoneNumber;
-                  },
-                  onSignInSuccess: onSignInSuccess,
-                  onSignInFailed: onSignInFailed,
-                ),
-              ),
-              Box(
-                child: PhoneSignIn(
-                  countryCode: 'KR',
-                  onSignInSuccess: onSignInSuccess,
-                  onSignInFailed: onSignInFailed,
-                  specialAccounts: const SpecialAccounts(
-                    emailLogin: true,
-                    reviewEmail: 'review123@email.com',
-                    reviewPassword: '12345a',
-                    reviewPhoneNumber: '+821012345678',
-                    reviewSmsCode: '123456',
-                  ),
-                ),
-              ),
-              Box(
-                child: PhoneSignIn(
-                  labelOnCountryPicker: const Text('국가 선택'),
-                  labelChangeCountry: const Text('변경'),
-
-                  /// You can add country picker on the phone sign in by adding the countryPickerOptions parameter.
-                  countryPickerOptions: CountryPickerOptions(
-                    /// You can add your own custom country list like below. Or remove the countryFilter parameter to show all countries.
-                    // countryFilter: ['KR', 'VN', 'TH', 'LA', 'MM', 'PH'],
-                    showSearch: false,
-                    countryListTheme: const CountryListThemeData(
-                      bottomSheetHeight: 400,
+                Wrap(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PhoneSignInScreen(),
+                        ),
+                      ),
+                      child: const Text('Phone sign-in screen'),
                     ),
-                    onSelect: (country) {
-                      debugPrint('Country: ${country.name}');
-                    },
-                  ),
-                  onSignInSuccess: onSignInSuccess,
-                  onSignInFailed: onSignInFailed,
+
+                    /// Sign out button
+                    ElevatedButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Signed out'),
+                          ),
+                        );
+                      },
+                      child: const Text('Sign out'),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+
+                /// 한국전화번호 또는 필리핀 전화번호를 입력받는 경우,
+                Box(
+                  child: PhoneSignIn(
+                    labelOnPhoneNumberTextField: const Text(
+                      ' 한국 또는 필리핀 전화번호를 입력하세요.',
+                    ),
+                    labelUnderPhoneNumberTextField: Text(
+                      ' 예) 010 1234 5678 또는 0917 1111 2222',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                    labelVerifyPhoneNumberButton: const Text('전화번호 인증'),
+                    labelOnDisplayPhoneNumber: const Text('전화번호'),
+                    labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
+                    labelRetry: const Text('재시도'),
+                    labelVerifySmsCodeButton: const Text('SMS 코드 인증'),
+                    hintTextPhoneNumberTextField: '전화번호',
+                    hintTextSmsCodeTextField: 'SMS 코드',
+                    onCompletePhoneNumber: onCompletePhoneNumber,
+                    onDisplayPhoneNumber: (phoneNumber) {
+                      debugPrint('Got -> display phone number: $phoneNumber');
+
+                      if (phoneNumber.startsWith('+8210')) {
+                        phoneNumber = phoneNumber.replaceFirst('+82', '0');
+                        phoneNumber =
+                            '${phoneNumber.substring(0, 3)}-${phoneNumber.substring(3, 7)}-${phoneNumber.substring(7)}';
+                      } else if (phoneNumber.startsWith('+639')) {
+                        phoneNumber = phoneNumber.replaceFirst('+63', '0');
+                        phoneNumber =
+                            '${phoneNumber.substring(0, 4)}-${phoneNumber.substring(4, 7)}-${phoneNumber.substring(7)}';
+                      }
+
+                      debugPrint(
+                          'Return -> display phone number: $phoneNumber');
+                      return phoneNumber;
+                    },
+                    onSignInSuccess: onSignInSuccess,
+                    onSignInFailed: onSignInFailed,
+                    specialAccounts: const SpecialAccounts(
+                      emailLogin: true,
+                    ),
+                  ),
+                ),
+                Box(
+                  child: PhoneSignIn(
+                    countryCode: 'KR',
+                    onSignInSuccess: onSignInSuccess,
+                    onSignInFailed: onSignInFailed,
+                    linkCurrentUser: true,
+                    specialAccounts: const SpecialAccounts(
+                      emailLogin: true,
+                      reviewEmail: 'review123@email.com',
+                      reviewPassword: '12345a',
+                      reviewPhoneNumber: '+821012345678',
+                      reviewSmsCode: '123456',
+                    ),
+                  ),
+                ),
+                Box(
+                  child: PhoneSignIn(
+                    linkCurrentUser: true,
+                    labelOnCountryPicker: const Text('국가 선택'),
+                    labelChangeCountry: const Text('변경'),
+
+                    /// You can add country picker on the phone sign in by adding the countryPickerOptions parameter.
+                    countryPickerOptions: CountryPickerOptions(
+                      /// You can add your own custom country list like below. Or remove the countryFilter parameter to show all countries.
+                      // countryFilter: ['KR', 'VN', 'TH', 'LA', 'MM', 'PH'],
+                      showSearch: true,
+                      countryListTheme: const CountryListThemeData(
+                        bottomSheetHeight: 400,
+                      ),
+                      onSelect: (country) {
+                        debugPrint('Country: ${country.name}');
+                      },
+                    ),
+                    onSignInSuccess: onSignInSuccess,
+                    onSignInFailed: onSignInFailed,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

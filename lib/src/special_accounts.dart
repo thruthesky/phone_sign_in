@@ -13,7 +13,6 @@ class SpecialAccounts {
   final String reviewPhoneNumber;
   final String reviewSmsCode;
   final bool emailLogin;
-  final bool linkPhoneNumber;
 
   const SpecialAccounts({
     this.reviewEmail = 'review@email.com',
@@ -21,6 +20,5 @@ class SpecialAccounts {
     this.reviewPhoneNumber = '123456789',
     this.reviewSmsCode = '',
     this.emailLogin = false,
-    this.linkPhoneNumber = true,
   });
 }
