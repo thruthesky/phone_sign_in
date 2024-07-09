@@ -310,8 +310,14 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                             smsCode: smsCodeController.text.trim(),
                           );
                           try {
-                            await FirebaseAuth.instance
-                                .signInWithCredential(credential);
+                            if (widget.specialAccounts?.linkPhoneNumber ==
+                                true) {
+                              log('linking anonymous account --->>> phone number ');
+                              await linkOrSignInWithCredential(credential);
+                            } else {
+                              await FirebaseAuth.instance
+                                  .signInWithCredential(credential);
+                            }
                             onSignInSuccess();
                           } on FirebaseAuthException catch (e) {
                             onSignInFailed(e);
@@ -325,6 +331,39 @@ class _PhoneSignInState extends State<PhoneSignIn> {
         ],
       ],
     );
+  }
+
+  /// Attempts to link the current user with the given credential.
+  ///
+  /// If linking fails due to the PhoneSignIn credential already being in use,
+  /// it will try to sign in with the given credential instead.
+  ///
+  /// if the linking fails due to current user does not exist or there is no
+  /// current user login (anonymous) it will try to sign in with the given
+  /// credentials instead
+  ///
+  Future<void> linkOrSignInWithCredential(AuthCredential credential) async {
+    try {
+      log('linking --->>> current user ');
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        log('linking failed --> theres no current user trying to login in please wait....');
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        log('login complete');
+      } else {
+        await currentUser.linkWithCredential(credential);
+        log('linking complete ');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use' ||
+          e.code == 'credential-already-in-use') {
+        log('phone number already in use --> login  with existing account please wait ....');
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        log('login complete');
+      } else {
+        rethrow;
+      }
+    }
   }
 
   /// Format the phone number to display
