@@ -210,7 +210,8 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                         return doReviewPhoneNumberSubmit();
                       } else if (completePhoneNumber.isEmpty) {
                         throw Exception(
-                            '@phone_sign_in/malformed-phone-number Phone number is empty or malformed.');
+                          '@phone_sign_in/malformed-phone-number Phone number is empty or malformed.',
+                        );
                       }
 
                       showProgress();

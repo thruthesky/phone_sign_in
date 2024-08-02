@@ -1,5 +1,5 @@
 import 'package:country_picker/country_picker.dart';
-import 'package:example/firebase_options.dart';
+// import 'package:example/firebase_options.dart';
 import 'package:example/phone_sign_in.screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,8 +9,8 @@ import 'package:phone_sign_in/phone_sign_in.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+      // options: DefaultFirebaseOptions.currentPlatform,
+      );
   runApp(const MyApp());
 }
 

@@ -21,10 +21,17 @@ If the user's phone number starts with '+', the phone number entered by the user
 
 For example, if the user selects the country as 'Philippines' and then enters a US phone number like '+1 1111 1111 11' at the beginning, although the country selection is set to 'Philippines', it ignores this and attempts to log in to Firebase with the phone number '+1 1111 1111 11' entered by the user.
 
+If the phone number begins with '0', then it will be removed. So, when you make the review phone number, don't make it begin with '0'.
+
+
 
 ## countryPickerOptions
 
-`countryPickerOptions` allows you to select a country. If this option is omitted, the widget does not display the country selection on the screen.
+- `countryPickerOptions`: allows you to select a country.
+
+- Add this option to display country picker widget.
+
+- If this option is omitted, the widget does not display the country selection on the screen.
 
 
 
@@ -100,7 +107,10 @@ The `onDisplayPhoneNumber` function receives the international phone number. Mor
 
 The `specialAccount` option allows you to log in using methods other than phone number login, and it can simulate temporary phone number login for review. For example, if there is an error in phone number login during iOS review, or if you are asked to show the entire process of phone number login, you can use a review account.
 
-- `reviewPhoneNumber` and `reviewSmsCode` are temporary phone numbers and SMS codes. `reviewPhoneNumber` should be stored in international phone number format. After the user's input phone number is converted into an international phone number format, it is compared with `reviewPhoneNumber`. If they match, a review (temporary) login is performed. By setting this option, you can simulate the entire process of actual phone number login. These options can be used for review when submitting to the iOS Appstore.
+- `reviewPhoneNumber` and `reviewSmsCode` are temporary phone numbers and SMS codes. `reviewPhoneNumber` must be stored in international phone number format like `+11234567890`. After the user's input phone number, the phone number is converted into an international phone number format, it is compared with `reviewPhoneNumber`. If they match, a review (temporary) login is performed. By setting this option, you can simulate the entire process of actual phone number login. These options can be used for review when submitting to the iOS Appstore.
+
+- Don't make the review number begins with '0' since it will be removed.
+  - For instance, If the developer set the review phone number as `+10123456789` and the user may choose the country code as `+1` and input the review number as `0123456789`, then the beginning `0` will be removed. And it will become `+1123456789` which is incorrect number.
 
 - `reviewEmail` and `reviewPassword` are the email address and password for review that will be used to log in when a temporary phone number and SMS code are entered. If you log in with the above `reviewPhoneNumber` and `reviewSmsCode`, you do not actually log in with this phone number, but instead log in with this `reviewEmail`.
 
@@ -131,6 +141,8 @@ The `specialAccount` option allows you to log in using methods other than phone 
 ### labelVerifySmsCodeButton
 
 ### labelOnCountryPicker
+
+- `labelOnCountryPicker`: Display the text (or any widget) on the country picker. User will press this label to open the country picker. See the example below to understand better.
 
 ### labelChangeCountry
 
