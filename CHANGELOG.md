@@ -1,3 +1,6 @@
+## 0.0.8
+* Change. `lableOnCountryPicker` -> `labelCountryPicker`
+
 ## 0.0.7
 * Add. link current user option
 

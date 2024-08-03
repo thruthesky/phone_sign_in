@@ -126,13 +126,21 @@ The `specialAccount` option allows you to log in using methods other than phone 
 - `labelEmptyCountry` is a widget that will be displayed on the screen when no country is selected. When a country is selected, this widget disappears and the country information appears.
 
 
-### labelOnPhoneNumberTextField
+### labelPhoneNumber
+
+- `labelPhoneNumber`: Displays a text on phone number
+
+
+### labelPhoneNumberSelected
+
+- `labelPhoneNumberSelected`: Display a text on phone number if the phone is selected.
+
+
 
 ### labelUnderPhoneNumberTextField
 
 ### labelVerifyPhoneNumberButton
 
-### labelOnDisplayPhoneNumber
 
 ### labelOnSmsCodeTextField
 
@@ -140,9 +148,15 @@ The `specialAccount` option allows you to log in using methods other than phone 
 
 ### labelVerifySmsCodeButton
 
-### labelOnCountryPicker
+### labelCountryPicker
 
-- `labelOnCountryPicker`: Display the text (or any widget) on the country picker. User will press this label to open the country picker. See the example below to understand better.
+- `labelCountryPicker`: Displays a text (or any widget) on the country picker. This is used to dipslay the label on the phone number. The user will press on this label to open the country picker. See the example below to understand better.
+
+### labelCountryPickerSelected
+
+- `labelCountryPickerSelected`: Displays a text on the country picker. If this is given, it will be used instead of `labelCountryPicker` when the country is selected.
+- Purpose of this parameter is to display different design when the country is selected.
+
 
 ### labelChangeCountry
 
@@ -248,7 +262,7 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
             padding: EdgeInsets.only(bottom: xxs),
             child: Text(' 변경'),
           ),
-          labelOnPhoneNumberTextField: Text(
+          labelPhoneNumber: Text(
             T.phoneNumberInputHint.tr,
           ),
           labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
@@ -257,7 +271,7 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
             T.phoneSignInRetry.tr,
           ),
           labelVerifySmsCodeButton: const Text('인증 코드 확인'),
-          labelOnDisplayPhoneNumber: const Text('전화 번호'),
+          labelPhoneNumberSelected: const Text('전화 번호'),
           hintTextPhoneNumberTextField: 'XXXXXXXXXX',
           hintTextSmsCodeTextField: 'XXXXXX',
           countryPickerOptions: _countryPickerOptions,

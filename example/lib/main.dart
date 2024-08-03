@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 /// 한국전화번호 또는 필리핀 전화번호를 입력받는 경우,
                 Box(
                   child: PhoneSignIn(
-                    labelOnPhoneNumberTextField: const Text(
+                    labelPhoneNumber: const Text(
                       ' 한국 또는 필리핀 전화번호를 입력하세요.',
                     ),
                     labelUnderPhoneNumberTextField: Text(
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                     labelVerifyPhoneNumberButton: const Text('전화번호 인증'),
-                    labelOnDisplayPhoneNumber: const Text('전화번호'),
+                    labelPhoneNumberSelected: const Text('전화번호'),
                     labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
                     labelRetry: const Text('재시도'),
                     labelVerifySmsCodeButton: const Text('SMS 코드 인증'),
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Box(
                   child: PhoneSignIn(
                     linkCurrentUser: true,
-                    labelOnCountryPicker: const Text('국가 선택'),
+                    labelCountryPicker: const Text('국가 선택'),
                     labelChangeCountry: const Text('변경'),
 
                     /// You can add country picker on the phone sign in by adding the countryPickerOptions parameter.
