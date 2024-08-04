@@ -1,3 +1,7 @@
+## 0.0.9
+* Add. more design properies.
+* Update. documentation.
+
 ## 0.0.8
 * Change. `lableOnCountryPicker` -> `labelCountryPicker`
 

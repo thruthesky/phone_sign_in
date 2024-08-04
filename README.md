@@ -234,119 +234,130 @@ If a user enters a Korean phone number like "01012345678" and you want to conver
 Here's a comprehensive example code that includes country selection. Feel free to copy, paste, and tailor it to your application's needs.
 
 ```dart
-class PhoneSignInScreen extends StatefulWidget {
-  const PhoneSignInScreen({super.key});
-
-  @override
-  State<PhoneSignInScreen> createState() => _PhoneSignInScreenState();
-}
-
-class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('전화번호 로그인'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(lg),
-        child: PhoneSignIn(
-          labelOnCountryPicker: const Padding(
-            padding: EdgeInsets.only(bottom: xxs),
-            child: Text(
-              '국가를 선택하세요',
+Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: sm,
             ),
-          ),
-          labelEmptyCountry: _emptyCountry,
-          labelChangeCountry: const Padding(
-            padding: EdgeInsets.only(bottom: xxs),
-            child: Text(' 변경'),
-          ),
-          labelPhoneNumber: Text(
-            T.phoneNumberInputHint.tr,
-          ),
-          labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
-          labelVerifyPhoneNumberButton: const Text('인증 코드 전송'),
-          labelRetry: Text(
-            T.phoneSignInRetry.tr,
-          ),
-          labelVerifySmsCodeButton: const Text('인증 코드 확인'),
-          labelPhoneNumberSelected: const Text('전화 번호'),
-          hintTextPhoneNumberTextField: 'XXXXXXXXXX',
-          hintTextSmsCodeTextField: 'XXXXXX',
-          countryPickerOptions: _countryPickerOptions,
-          onSignInSuccess: _onSignInSuccess,
-          onSignInFailed: _onSignInFailed,
-        ),
-      ),
-    );
-  }
+            child: PhoneSignIn(
+              //
+              labelCountryPicker: Padding(
+                padding: const EdgeInsets.only(bottom: xxs),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
+                  child: Text(
+                    '1. ${'Choose country'.t}',
+                    style: context.titleLarge,
+                  ),
+                ),
+              ),
+              labelCountryPickerSelected: Padding(
+                padding: const EdgeInsets.only(bottom: xxs),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
+                  child: Text(
+                    '1. ${'Choose country'.t}',
+                  ),
+                ),
+              ),
+              labelEmptyCountry: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: context.colorScheme.onSurface,
+                    width: 1.8,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Choose country desc'.t),
+                ),
+              ),
+              labelChangeCountry: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                child: Text('Change country'.t),
+              ),
+              labelPhoneNumber: Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 48, 0, 8.0),
+                child: Text(
+                  '2. ${'Enter your phone number'.t}',
+                  style: context.titleLarge,
+                ),
+              ),
+              labelPhoneNumberSelected: Padding(
+                padding: const EdgeInsets.only(top: 48),
+                child: Text('2. ${'Phone Number'.t}'),
+              ),
+              hintTextPhoneNumberTextField: 'Phone Number'.t,
+              labelOnSmsCodeTextField: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 48, 0, 8),
+                child: Text(
+                  '3. ${'Enter SMS code'.t}',
+                  style: context.titleLarge,
+                ),
+              ),
+              hintTextSmsCodeTextField: 'SMS code'.t,
+              labelVerifyPhoneNumberButton: Text('Verify phone number'.t),
+              labelVerifySmsCodeButton: Text('Verify SMS code'.t),
 
-  Widget get _emptyCountry {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-          width: 1.8,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        '여기를 탭하셔서 국가를 선택하세요',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-    );
-  }
+              labelRetry: Text('Retry'.t),
+              linkCurrentUser: true,
+              onSignInSuccess: afterSignIn,
+              onSignInFailed: onSignInFailed,
+              countryPickerOptions: const CountryPickerOptions(
+                favorite: ['US', 'KR'],
+              ),
+              specialAccounts: const SpecialAccounts(
+                reviewEmail: 'review@email.com',
+                reviewPassword: '12345zB,*c',
+                reviewPhoneNumber: '+11234567890',
+                reviewSmsCode: '123456',
+                emailLogin: true,
+              ),
+            ),
+          )
 
-  get _countryPickerOptions {
-    return const CountryPickerOptions(
-      countryFilter: ['KR', 'VN', 'TH', 'LA', 'PH'],
-      showSearch: false,
-    );
-  }
 
-  _onSignInSuccess() async {
-    try {
-      await UserService.instance.login();
-      if (mounted) context.go(HomeScreen.routeName);
-    } catch (e) {
-      dog('ERROR: signinSuccess() method. error: $e');
-      rethrow;
+  /// clean previous anonnymouse user after login in into existing account.
+  ///
+  afterSignIn() async {
+    if (context.mounted) {
+      context.pop();
     }
   }
 
-  _onSignInFailed(FirebaseAuthException e) {
+  onSignInFailed(FirebaseAuthException e) {
+    dog('onSignInFailed() -> FirebaseAuthException : $e');
     if (e.code == 'web-context-cancelled') {
       // The interaction was cancelled by the user
       error(
         context: context,
-        message: '로그인을 취소했습니다.',
+        message: Text('Login in canceled'.t),
       );
     } else if (e.code == 'missing-client-identifier') {
       error(
         context: context,
-        message: '전화번호를 확인할 수 없습니다. 올바른 전화번호를 입력했는지 확인하고 다시 시도해 주세요.',
+        message: Text(
+            'Your phone number cannot be verified. Please make sure you entered the correct phone number and try again.'
+                .t),
       );
     } else if (e.code == 'too-many-requests') {
       error(
         context: context,
-        message: '너무 많은 시도로 인해 이 기기의 모든 요청이 차단되었습니다. 나중에 다시 시도 해주십시오',
+        message: Text(
+            'All requests from this device have been blocked due to too many attempts. Please try again later'
+                .t),
       );
     } else if (e.code == 'invalid-verification-code') {
       error(
-          context: context,
-          message: '앗! 잘못된 코드입니다. 휴대폰으로 전송된 코드를 다시 확인하신 후 다시 시도해 주세요.');
+        context: context,
+        message: Text(
+            'oh! This is incorrect code. Please check the code sent to your phone and try again'
+                .t),
+      );
     } else if (e.code == 'invalid-phone-number') {
       error(
         context: context,
-        message: '잘못된 전화 번호입니다.',
+        message: const Text('Invalid phone number'),
       );
     } else {
       dog(
@@ -355,7 +366,6 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
       throw e;
     }
   }
-}
 ```
 
 
