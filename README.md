@@ -70,6 +70,9 @@ if `linkCurrentUser` is set to true, it will attempts to link the current user a
 Note that, when the user signed as a phone number, he cannot link with another phone number credential. To know more about it, refer Firebase Auth documents.
 
 
+## isPhoneNumberRegistered
+
+When `linkCurrentUser` is set to true, this callback function must be set and return true if the phone number is already in use.
 
 
 

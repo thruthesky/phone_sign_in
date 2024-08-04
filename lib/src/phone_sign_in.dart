@@ -38,6 +38,7 @@ class PhoneSignIn extends StatefulWidget {
     this.hintTextSmsCodeTextField,
     this.linkCurrentUser = false,
     this.specialAccounts,
+    this.isPhoneNumberRegistered,
   });
 
   final String? countryCode;
@@ -70,6 +71,8 @@ class PhoneSignIn extends StatefulWidget {
   final bool linkCurrentUser;
 
   final SpecialAccounts? specialAccounts;
+
+  final Future<bool> Function(String)? isPhoneNumberRegistered;
 
   @override
   State<PhoneSignIn> createState() => _PhoneSignInState();
@@ -389,6 +392,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
   /// --> 확실한 것 같다. 열심히 체크를 했다.
   Future<void> linkOrSignInWithCredential(AuthCredential credential) async {
     log('linkOrSignInWithCredential()');
+
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       log('Currently user is not signed in. Not even as anonymous. So, it will sign in with the phone number.');
@@ -396,18 +400,19 @@ class _PhoneSignInState extends State<PhoneSignIn> {
       return;
     }
 
-    try {
-      log('--> Currently user is signed in (maybe as an anonymous). Try to link with the phone number sign-in credential.');
-      await currentUser.linkWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use' ||
-          e.code == 'credential-already-in-use') {
-        log('--> linkOrSignInWithCredential() -> Phone number already in use. So, it will sign-in with phone number without linking.');
-        await FirebaseAuth.instance.signInWithCredential(credential);
-      } else {
-        rethrow;
-      }
+    /// 전화 번호가 이미 사용되었는지 확인하는 콜백 함수
+    ///
+    /// 만약, 전화번호가 이미 사용되었으면, link 하지 말고 그냥 로그인한다.
+    final re = await widget.isPhoneNumberRegistered!(onCompletePhoneNumber());
+    if (re) {
+      log('--> linkOrSignInWithCredential() -> Phone number already in use!! So, it will sign-in with phone number without linking.');
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return;
     }
+
+    /// 현재 사용자가 로그인 되어 있는 경우, 전화번호로 로그인을 시도한다.
+    log('--> linkOrSignInWithCredential() -> The phone number is not in use. Currently user is signed in (maybe as an anonymous). Try to link with the phone number sign-in credential.');
+    await currentUser.linkWithCredential(credential);
   }
 
   /// Format the phone number to display
