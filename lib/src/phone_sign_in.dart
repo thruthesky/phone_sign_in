@@ -23,20 +23,22 @@ class PhoneSignIn extends StatefulWidget {
     this.onDisplayPhoneNumber,
     required this.onSignInSuccess,
     required this.onSignInFailed,
-    this.labelOnPhoneNumberTextField,
+    this.labelPhoneNumber,
     this.labelUnderPhoneNumberTextField,
     this.labelVerifyPhoneNumberButton,
-    this.labelOnDisplayPhoneNumber,
+    this.labelPhoneNumberSelected,
     this.labelOnSmsCodeTextField,
     this.labelRetry,
     this.labelVerifySmsCodeButton,
-    this.labelOnCountryPicker,
+    this.labelCountryPicker,
+    this.labelCountryPickerSelected,
     this.labelChangeCountry,
     this.labelEmptyCountry,
     this.hintTextPhoneNumberTextField,
     this.hintTextSmsCodeTextField,
     this.linkCurrentUser = false,
     this.specialAccounts,
+    this.isPhoneNumberRegistered,
   });
 
   final String? countryCode;
@@ -51,14 +53,15 @@ class PhoneSignIn extends StatefulWidget {
   /// [FirebaseAuthException] error.
   final void Function(FirebaseAuthException) onSignInFailed;
 
-  final Widget? labelOnPhoneNumberTextField;
+  final Widget? labelPhoneNumber;
   final Widget? labelUnderPhoneNumberTextField;
   final Widget? labelVerifyPhoneNumberButton;
-  final Widget? labelOnDisplayPhoneNumber;
+  final Widget? labelPhoneNumberSelected;
   final Widget? labelOnSmsCodeTextField;
   final Widget? labelRetry;
   final Widget? labelVerifySmsCodeButton;
-  final Widget? labelOnCountryPicker;
+  final Widget? labelCountryPicker;
+  final Widget? labelCountryPickerSelected;
   final Widget? labelChangeCountry;
   final Widget? labelEmptyCountry;
 
@@ -68,6 +71,8 @@ class PhoneSignIn extends StatefulWidget {
   final bool linkCurrentUser;
 
   final SpecialAccounts? specialAccounts;
+
+  final Future<bool> Function(String)? isPhoneNumberRegistered;
 
   @override
   State<PhoneSignIn> createState() => _PhoneSignInState();
@@ -145,8 +150,13 @@ class _PhoneSignInState extends State<PhoneSignIn> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                widget.labelOnCountryPicker ??
-                    const Text('Select your country'),
+                if (country == null)
+                  widget.labelCountryPicker ??
+                      const Text('Select your country'),
+                if (country != null)
+                  widget.labelCountryPickerSelected ??
+                      widget.labelCountryPicker ??
+                      const Text('Select your country'),
                 if (country == null)
                   widget.labelEmptyCountry ?? const SizedBox.shrink()
                 else ...[
@@ -162,8 +172,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
         if (showSmsCodeInput == false &&
             (countryPicker == false || country != null)) ...[
           const SizedBox(height: 16),
-          widget.labelOnPhoneNumberTextField ??
-              const Text('Enter your phone number'),
+          widget.labelPhoneNumber ?? const Text('Enter your phone number'),
           TextField(
             controller: phoneNumberController,
             keyboardType: TextInputType.phone,
@@ -210,7 +219,8 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                         return doReviewPhoneNumberSubmit();
                       } else if (completePhoneNumber.isEmpty) {
                         throw Exception(
-                            '@phone_sign_in/malformed-phone-number Phone number is empty or malformed.');
+                          '@phone_sign_in/malformed-phone-number Phone number is empty or malformed.',
+                        );
                       }
 
                       showProgress();
@@ -218,33 +228,51 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                           .setLanguageCode(widget.firebaseAuthLanguageCode);
 
                       await FirebaseAuth.instance.verifyPhoneNumber(
-                        timeout: const Duration(seconds: 120),
+                        timeout: const Duration(seconds: 60),
                         phoneNumber: completePhoneNumber,
                         // Android Only. Automatic SMS code resolved. Just go home.
                         verificationCompleted:
                             (PhoneAuthCredential credential) async {
+                          log('--> PhoneSignIn::build() -> verificationCompleted: $credential');
                           // Note that, the app logs in automatically in Anroid, the app may throw time-expire or invalid sms code.
                           // You can ignore this erorrs.
                           // Sign the user in (or link) with the auto-generated credential
-                          await FirebaseAuth.instance
-                              .signInWithCredential(credential);
-                          onSignInSuccess();
+
+                          /// Sign in with the credential from Phone number and Sms code.
+                          try {
+                            /// Is if for linking the current user with the phone number.
+                            if (widget.linkCurrentUser) {
+                              log('Linking current user account with phone number ');
+                              await linkOrSignInWithCredential(credential);
+                            } else {
+                              await FirebaseAuth.instance
+                                  .signInWithCredential(credential);
+                            }
+
+                            onSignInSuccess();
+                          } on FirebaseAuthException catch (e) {
+                            onSignInFailed(e);
+                          }
                         },
                         // Phone number verification failed or there is an error on Firebase like quota exceeded.
-                        // This is not for the failures of SMS code verification!!
+                        // This is not for the failures of SMS code verification!
                         verificationFailed: (FirebaseAuthException e) {
+                          log('---> PhoneSignIn::build() -> verificationFailed: $e');
                           onSignInFailed(e);
                         },
                         // Phone number verfied and SMS code sent to user.
                         // Show SMS code input UI.
                         codeSent: (String verificationId, int? resendToken) {
+                          log('---> PhoneSignIn::build() -> codeSent: $verificationId');
                           this.verificationId = verificationId;
                           setState(() {
                             showSmsCodeInput = true;
                             hideProgress();
                           });
                         },
-                        // Only for Android. This timeout may happens when the Phone Signal is not stable.
+
+                        /// This is for Android only.
+                        /// This timeout may happens when the Phone Signal is not stable.
                         codeAutoRetrievalTimeout: (String verificationId) {
                           // Auto-resolution timed out...
                           if (mounted) {
@@ -270,7 +298,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
         ],
         if (showSmsCodeInput) ...[
           const SizedBox(height: 16),
-          widget.labelOnDisplayPhoneNumber ?? const Text('Phone number'),
+          widget.labelPhoneNumberSelected ?? const Text('Phone number'),
           Text(
             onDisplayPhoneNumber(),
             style: Theme.of(context).textTheme.titleLarge,
@@ -310,13 +338,18 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                             return doReviewSmsCodeSubmit();
                           }
                           showProgress();
+
+                          /// Get the credential from the SMS code and the verification ID.
                           final credential = PhoneAuthProvider.credential(
                             verificationId: verificationId!,
                             smsCode: smsCodeController.text.trim(),
                           );
+
+                          /// Sign in with the credential from Phone number and Sms code.
                           try {
+                            /// Is if for linking the current user with the phone number.
                             if (widget.linkCurrentUser) {
-                              log('linking anonymous account --->>> phone number ');
+                              log('Linking current user account with phone number ');
                               await linkOrSignInWithCredential(credential);
                             } else {
                               await FirebaseAuth.instance
@@ -346,28 +379,39 @@ class _PhoneSignInState extends State<PhoneSignIn> {
   /// current user login (anonymous) it will try to sign in with the given
   /// credentials instead
   ///
+  ///
+  /// 처음 한번 전화번호 로그인 할 때 잘 되는데, 이미 존재하는 전화번호로 로그인하면, sms expired 에러가 난다.
+  /// 왜냐하면, 이미 존재하는 전화번호의 경우, linkWithCredential() 이 실패하면, signInWithCredential 을 사용하는데,
+  /// 이 때, linkWithCredentail() 에서 사용된, credential 을 signInWithCredential 에서 사용해서 그런 것 같다.
+  /// 그래서, 상단에서 전화번호가 이미 존재하는지 하지 않는지 파악해서, 전화번호가 존재하면 그냥 signInWithCredential() 을
+  /// 바로 호출하도록 한다.
+  /// 이 것은 전화번호로 로그인을 할 때에만 SMS 로 얻는 credential 이, 두번 사용되면 안되는 것 같다. 다른 로그인은 괜찮은 것 같다.
+  /// 그래서, phoneNumbers 컬렉션에, 전화번호를 문서 id 로 해서 저장한다. 이 때, uid 를 같이 저장하지 않는다. 그래서 해킹당해도
+  /// 누구의 전화번호인지 알 수 없도록 한다. 용도는 전화번호가 가입되어져 있는지 아닌지만 확인하기 위해서 기록을 한다.
+  ///
   Future<void> linkOrSignInWithCredential(AuthCredential credential) async {
-    try {
-      log('linking --->>> current user ');
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        log('linking failed --> theres no current user trying to login in please wait....');
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        log('login complete');
-      } else {
-        await currentUser.linkWithCredential(credential);
-        log('linking complete ');
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use' ||
-          e.code == 'credential-already-in-use') {
-        log('phone number already in use --> login  with existing account please wait ....');
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        log('login complete');
-      } else {
-        rethrow;
-      }
+    log('linkOrSignInWithCredential()');
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      log('Currently user is not signed in. Not even as anonymous. So, it will sign in with the phone number.');
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return;
     }
+
+    /// 전화 번호가 이미 사용되었는지 확인하는 콜백 함수
+    ///
+    /// 만약, 전화번호가 이미 사용되었으면, link 하지 말고 그냥 로그인한다.
+    final re = await widget.isPhoneNumberRegistered!(onCompletePhoneNumber());
+    if (re) {
+      log('--> linkOrSignInWithCredential() -> Phone number already in use!! So, it will sign-in with phone number without linking.');
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return;
+    }
+
+    /// 현재 사용자가 로그인 되어 있는 경우, 전화번호로 로그인을 시도한다.
+    log('--> linkOrSignInWithCredential() -> The phone number is not in use. Currently user is signed in (maybe as an anonymous). Try to link with the phone number sign-in credential.');
+    await currentUser.linkWithCredential(credential);
   }
 
   /// Format the phone number to display

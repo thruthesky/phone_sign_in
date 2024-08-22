@@ -1,6 +1,6 @@
 name: phone_sign_in
 description: "Phone number sign-in package for easy phone sign-in with firebase auth."
-version: 0.0.8
+version: 0.0.11
 repository: https://github.com/thruthesky/phone_sign_in
 
 environment:

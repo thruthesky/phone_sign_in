@@ -21,10 +21,17 @@ If the user's phone number starts with '+', the phone number entered by the user
 
 For example, if the user selects the country as 'Philippines' and then enters a US phone number like '+1 1111 1111 11' at the beginning, although the country selection is set to 'Philippines', it ignores this and attempts to log in to Firebase with the phone number '+1 1111 1111 11' entered by the user.
 
+If the phone number begins with '0', then it will be removed. So, when you make the review phone number, don't make it begin with '0'.
+
+
 
 ## countryPickerOptions
 
-`countryPickerOptions` allows you to select a country. If this option is omitted, the widget does not display the country selection on the screen.
+- `countryPickerOptions`: allows you to select a country.
+
+- Add this option to display country picker widget.
+
+- If this option is omitted, the widget does not display the country selection on the screen.
 
 
 
@@ -63,6 +70,9 @@ if `linkCurrentUser` is set to true, it will attempts to link the current user a
 Note that, when the user signed as a phone number, he cannot link with another phone number credential. To know more about it, refer Firebase Auth documents.
 
 
+## isPhoneNumberRegistered
+
+When `linkCurrentUser` is set to true, this callback function must be set and return true if the phone number is already in use.
 
 
 
@@ -100,7 +110,10 @@ The `onDisplayPhoneNumber` function receives the international phone number. Mor
 
 The `specialAccount` option allows you to log in using methods other than phone number login, and it can simulate temporary phone number login for review. For example, if there is an error in phone number login during iOS review, or if you are asked to show the entire process of phone number login, you can use a review account.
 
-- `reviewPhoneNumber` and `reviewSmsCode` are temporary phone numbers and SMS codes. `reviewPhoneNumber` should be stored in international phone number format. After the user's input phone number is converted into an international phone number format, it is compared with `reviewPhoneNumber`. If they match, a review (temporary) login is performed. By setting this option, you can simulate the entire process of actual phone number login. These options can be used for review when submitting to the iOS Appstore.
+- `reviewPhoneNumber` and `reviewSmsCode` are temporary phone numbers and SMS codes. `reviewPhoneNumber` must be stored in international phone number format like `+11234567890`. After the user's input phone number, the phone number is converted into an international phone number format, it is compared with `reviewPhoneNumber`. If they match, a review (temporary) login is performed. By setting this option, you can simulate the entire process of actual phone number login. These options can be used for review when submitting to the iOS Appstore.
+
+- Don't make the review number begins with '0' since it will be removed.
+  - For instance, If the developer set the review phone number as `+10123456789` and the user may choose the country code as `+1` and input the review number as `0123456789`, then the beginning `0` will be removed. And it will become `+1123456789` which is incorrect number.
 
 - `reviewEmail` and `reviewPassword` are the email address and password for review that will be used to log in when a temporary phone number and SMS code are entered. If you log in with the above `reviewPhoneNumber` and `reviewSmsCode`, you do not actually log in with this phone number, but instead log in with this `reviewEmail`.
 
@@ -116,13 +129,21 @@ The `specialAccount` option allows you to log in using methods other than phone 
 - `labelEmptyCountry` is a widget that will be displayed on the screen when no country is selected. When a country is selected, this widget disappears and the country information appears.
 
 
-### labelOnPhoneNumberTextField
+### labelPhoneNumber
+
+- `labelPhoneNumber`: Displays a text on phone number
+
+
+### labelPhoneNumberSelected
+
+- `labelPhoneNumberSelected`: Display a text on phone number if the phone is selected.
+
+
 
 ### labelUnderPhoneNumberTextField
 
 ### labelVerifyPhoneNumberButton
 
-### labelOnDisplayPhoneNumber
 
 ### labelOnSmsCodeTextField
 
@@ -130,7 +151,15 @@ The `specialAccount` option allows you to log in using methods other than phone 
 
 ### labelVerifySmsCodeButton
 
-### labelOnCountryPicker
+### labelCountryPicker
+
+- `labelCountryPicker`: Displays a text (or any widget) on the country picker. This is used to dipslay the label on the phone number. The user will press on this label to open the country picker. See the example below to understand better.
+
+### labelCountryPickerSelected
+
+- `labelCountryPickerSelected`: Displays a text on the country picker. If this is given, it will be used instead of `labelCountryPicker` when the country is selected.
+- Purpose of this parameter is to display different design when the country is selected.
+
 
 ### labelChangeCountry
 
@@ -205,119 +234,130 @@ If a user enters a Korean phone number like "01012345678" and you want to conver
 Here's a comprehensive example code that includes country selection. Feel free to copy, paste, and tailor it to your application's needs.
 
 ```dart
-class PhoneSignInScreen extends StatefulWidget {
-  const PhoneSignInScreen({super.key});
-
-  @override
-  State<PhoneSignInScreen> createState() => _PhoneSignInScreenState();
-}
-
-class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('전화번호 로그인'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(lg),
-        child: PhoneSignIn(
-          labelOnCountryPicker: const Padding(
-            padding: EdgeInsets.only(bottom: xxs),
-            child: Text(
-              '국가를 선택하세요',
+Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: sm,
             ),
-          ),
-          labelEmptyCountry: _emptyCountry,
-          labelChangeCountry: const Padding(
-            padding: EdgeInsets.only(bottom: xxs),
-            child: Text(' 변경'),
-          ),
-          labelOnPhoneNumberTextField: Text(
-            T.phoneNumberInputHint.tr,
-          ),
-          labelOnSmsCodeTextField: const Text('SMS 코드를 입력하세요'),
-          labelVerifyPhoneNumberButton: const Text('인증 코드 전송'),
-          labelRetry: Text(
-            T.phoneSignInRetry.tr,
-          ),
-          labelVerifySmsCodeButton: const Text('인증 코드 확인'),
-          labelOnDisplayPhoneNumber: const Text('전화 번호'),
-          hintTextPhoneNumberTextField: 'XXXXXXXXXX',
-          hintTextSmsCodeTextField: 'XXXXXX',
-          countryPickerOptions: _countryPickerOptions,
-          onSignInSuccess: _onSignInSuccess,
-          onSignInFailed: _onSignInFailed,
-        ),
-      ),
-    );
-  }
+            child: PhoneSignIn(
+              //
+              labelCountryPicker: Padding(
+                padding: const EdgeInsets.only(bottom: xxs),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
+                  child: Text(
+                    '1. ${'Choose country'.t}',
+                    style: context.titleLarge,
+                  ),
+                ),
+              ),
+              labelCountryPickerSelected: Padding(
+                padding: const EdgeInsets.only(bottom: xxs),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
+                  child: Text(
+                    '1. ${'Choose country'.t}',
+                  ),
+                ),
+              ),
+              labelEmptyCountry: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: context.colorScheme.onSurface,
+                    width: 1.8,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Choose country desc'.t),
+                ),
+              ),
+              labelChangeCountry: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                child: Text('Change country'.t),
+              ),
+              labelPhoneNumber: Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 48, 0, 8.0),
+                child: Text(
+                  '2. ${'Enter your phone number'.t}',
+                  style: context.titleLarge,
+                ),
+              ),
+              labelPhoneNumberSelected: Padding(
+                padding: const EdgeInsets.only(top: 48),
+                child: Text('2. ${'Phone Number'.t}'),
+              ),
+              hintTextPhoneNumberTextField: 'Phone Number'.t,
+              labelOnSmsCodeTextField: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 48, 0, 8),
+                child: Text(
+                  '3. ${'Enter SMS code'.t}',
+                  style: context.titleLarge,
+                ),
+              ),
+              hintTextSmsCodeTextField: 'SMS code'.t,
+              labelVerifyPhoneNumberButton: Text('Verify phone number'.t),
+              labelVerifySmsCodeButton: Text('Verify SMS code'.t),
 
-  Widget get _emptyCountry {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-          width: 1.8,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        '여기를 탭하셔서 국가를 선택하세요',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-    );
-  }
+              labelRetry: Text('Retry'.t),
+              linkCurrentUser: true,
+              onSignInSuccess: afterSignIn,
+              onSignInFailed: onSignInFailed,
+              countryPickerOptions: const CountryPickerOptions(
+                favorite: ['US', 'KR'],
+              ),
+              specialAccounts: const SpecialAccounts(
+                reviewEmail: 'review@email.com',
+                reviewPassword: '12345zB,*c',
+                reviewPhoneNumber: '+11234567890',
+                reviewSmsCode: '123456',
+                emailLogin: true,
+              ),
+            ),
+          )
 
-  get _countryPickerOptions {
-    return const CountryPickerOptions(
-      countryFilter: ['KR', 'VN', 'TH', 'LA', 'PH'],
-      showSearch: false,
-    );
-  }
 
-  _onSignInSuccess() async {
-    try {
-      await UserService.instance.login();
-      if (mounted) context.go(HomeScreen.routeName);
-    } catch (e) {
-      dog('ERROR: signinSuccess() method. error: $e');
-      rethrow;
+  /// clean previous anonnymouse user after login in into existing account.
+  ///
+  afterSignIn() async {
+    if (context.mounted) {
+      context.pop();
     }
   }
 
-  _onSignInFailed(FirebaseAuthException e) {
+  onSignInFailed(FirebaseAuthException e) {
+    dog('onSignInFailed() -> FirebaseAuthException : $e');
     if (e.code == 'web-context-cancelled') {
       // The interaction was cancelled by the user
       error(
         context: context,
-        message: '로그인을 취소했습니다.',
+        message: Text('Login in canceled'.t),
       );
     } else if (e.code == 'missing-client-identifier') {
       error(
         context: context,
-        message: '전화번호를 확인할 수 없습니다. 올바른 전화번호를 입력했는지 확인하고 다시 시도해 주세요.',
+        message: Text(
+            'Your phone number cannot be verified. Please make sure you entered the correct phone number and try again.'
+                .t),
       );
     } else if (e.code == 'too-many-requests') {
       error(
         context: context,
-        message: '너무 많은 시도로 인해 이 기기의 모든 요청이 차단되었습니다. 나중에 다시 시도 해주십시오',
+        message: Text(
+            'All requests from this device have been blocked due to too many attempts. Please try again later'
+                .t),
       );
     } else if (e.code == 'invalid-verification-code') {
       error(
-          context: context,
-          message: '앗! 잘못된 코드입니다. 휴대폰으로 전송된 코드를 다시 확인하신 후 다시 시도해 주세요.');
+        context: context,
+        message: Text(
+            'oh! This is incorrect code. Please check the code sent to your phone and try again'
+                .t),
+      );
     } else if (e.code == 'invalid-phone-number') {
       error(
         context: context,
-        message: '잘못된 전화 번호입니다.',
+        message: const Text('Invalid phone number'),
       );
     } else {
       dog(
@@ -326,7 +366,6 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
       throw e;
     }
   }
-}
 ```
 
 

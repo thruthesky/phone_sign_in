@@ -1,5 +1,17 @@
+<<<<<<< HEAD
 ## 0.0.8
 * Update. sms text error message
+=======
+## 0.0.10
+* Update. documentation.
+
+## 0.0.9
+* Add. more design properies.
+* Update. documentation.
+
+## 0.0.8
+* Change. `lableOnCountryPicker` -> `labelCountryPicker`
+>>>>>>> 0120ebbdb3f64e5906c6c3b3057de28f41bed16c
 
 ## 0.0.7
 * Add. link current user option

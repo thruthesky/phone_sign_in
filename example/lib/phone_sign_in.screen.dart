@@ -45,7 +45,7 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
               ),
               const SizedBox(height: 48),
               PhoneSignIn(
-                labelOnCountryPicker: const Text('1. Select your country'),
+                labelCountryPicker: const Text('1. Select your country'),
                 labelEmptyCountry: Container(
                   margin: const EdgeInsets.only(top: 8),
                   padding: const EdgeInsets.all(16),
