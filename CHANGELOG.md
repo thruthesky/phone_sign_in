@@ -1,3 +1,6 @@
+## 0.0.8
+* Update. sms text error message
+
 ## 0.0.7
 * Add. link current user option
 

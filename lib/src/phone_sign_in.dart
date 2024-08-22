@@ -542,7 +542,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('[REVIEW] Invalid SMS code. Please retry.'),
+          content: Text('Invalid SMS code. Please retry.'),
         ),
       );
     }
