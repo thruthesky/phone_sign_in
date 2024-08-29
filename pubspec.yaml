@@ -1,6 +1,6 @@
 name: phone_sign_in
 description: "Phone number sign-in package for easy phone sign-in with firebase auth."
-version: 0.0.11
+version: 0.0.12
 repository: https://github.com/thruthesky/phone_sign_in
 
 environment:
@@ -19,4 +19,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.0
 
-flutter:
+issue_tracker: https://github.com/thruthesky/phone_sign_in/issues
+topics:
+  - phone-sign-in
+  - auth
+  - sign-in
+  - firebase
+  - firebase-auth

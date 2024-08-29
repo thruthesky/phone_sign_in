@@ -32,6 +32,13 @@ If the phone number begins with '0', then it will be removed. So, when you make 
 - Add this option to display country picker widget.
 
 - If this option is omitted, the widget does not display the country selection on the screen.
+  - If there is no country selection? then?
+    - You may not need a country selection widget because you will only use your country code in your app.
+    - Or, user may input the coutry code like `+82` along with the phone number.
+
+- `moveAlongWithKeyboard`: by default, the search result may be hidden below the keypad. Set this to true, and the result will not be hidden beneath the keyboard.
+
+
 
 
 

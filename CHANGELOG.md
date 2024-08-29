@@ -1,5 +1,9 @@
+## 0.0.12
+* Update. document update only.
+
 ## 0.0.11
 * Update. sms text error message
+
 ## 0.0.10
 * Update. documentation.
 
